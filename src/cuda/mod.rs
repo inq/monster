@@ -1,10 +1,12 @@
 use std::mem;
 
+#[allow(dead_code)]
 pub enum Error {
     Success = 0,
     ErrorInvalidValue = 1,
 }
 
+#[allow(dead_code)]
 pub enum MemcpyKind {
     HostToHost = 0,
     HostToDevice = 1,
