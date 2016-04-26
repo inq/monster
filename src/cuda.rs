@@ -42,12 +42,22 @@ impl<T> Memory<T> {
         }
     }
 
-    pub fn write(&self, data: *const ::libc::c_void, size: usize) {
-        unsafe { cudaMemcpy(self.data, data, (size * ::std::mem::size_of::<T>()) as u64, MemcpyKind::HostToDevice) };
+    pub fn write(&self, data: &Vec<T>) {
+        unsafe {
+            cudaMemcpy(self.data,
+                       data.as_ptr() as *mut ::libc::c_void,
+                       (data.len() * ::std::mem::size_of::<T>()) as u64,
+                       MemcpyKind::HostToDevice);
+        }
     }
 
-    pub fn read(&self, data: *mut ::libc::c_void, size: usize) {
-        unsafe { cudaMemcpy(data, self.data, (size * ::std::mem::size_of::<T>()) as u64, MemcpyKind::DeviceToHost) };
+    pub fn read(&self, data: &Vec<T>) {
+        unsafe {
+            cudaMemcpy(data.as_ptr() as *mut ::libc::c_void,
+                       self.data,
+                       (data.len() * ::std::mem::size_of::<T>()) as u64,
+                       MemcpyKind::DeviceToHost);
+        }
     }
 }
 

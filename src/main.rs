@@ -2,7 +2,6 @@ extern crate cudnn;
 extern crate libc;
 extern crate image;
 
-
 mod cuda;
 
 use std::path::Path;
@@ -24,9 +23,9 @@ fn main() {
     let mut src = cuda::Memory::<f32>::new(buf_float.len());
     let mut dst = cuda::Memory::<f32>::new(buf_float.len());
 
-    src.write(buf_float.as_ptr() as *mut ::libc::c_void, buf_float.len());
+    src.write(&buf_float);
     let res = cudnn.sigmoid_forward::<f32>(&src_desc, src.data, &dst_desc, dst.data, ScalParams::default());
-    dst.read(buf_float.as_ptr() as *mut ::libc::c_void, buf_float.len());
+    dst.read(&buf_float);
 
     // write png image
     let buf_output = buf_float.into_iter().map(|x: f32| (x * 255.0) as u8).collect::<Vec<_>>();
