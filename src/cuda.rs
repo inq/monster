@@ -1,3 +1,5 @@
+use std::mem;
+
 pub enum Error {
     Success = 0,
     ErrorInvalidValue = 1,
@@ -23,27 +25,29 @@ extern "C" {
         -> Error;
 }
 
-pub struct Memory {
+pub struct Memory<T> {
     pub data: *mut ::libc::c_void,
-    size: u64
+    size: usize,
+    dummy: [T; 0]
 }
 
-impl Memory {
-    pub fn new(size: u64) -> Memory {
+impl<T> Memory<T> {
+    pub fn new(size: usize) -> Memory<T> {
         let mut data: *mut ::libc::c_void = ::std::ptr::null_mut();
-        let err = unsafe { cudaMalloc(&mut data, size) };
-        Memory {
+        let err = unsafe { cudaMalloc(&mut data, (size * ::std::mem::size_of::<T>()) as u64) };
+        Memory::<T> {
             data: data,
-            size: size
+            size: size,
+            dummy: []
         }
     }
 
-    pub fn write(&self, data: *const ::libc::c_void, size: u64) {
-        unsafe { cudaMemcpy(self.data, data, size, MemcpyKind::HostToDevice) };
+    pub fn write(&self, data: *const ::libc::c_void, size: usize) {
+        unsafe { cudaMemcpy(self.data, data, (size * ::std::mem::size_of::<T>()) as u64, MemcpyKind::HostToDevice) };
     }
 
-    pub fn read(&self, data: *mut ::libc::c_void, size: u64) {
-        unsafe { cudaMemcpy(data, self.data, size, MemcpyKind::DeviceToHost) };
+    pub fn read(&self, data: *mut ::libc::c_void, size: usize) {
+        unsafe { cudaMemcpy(data, self.data, (size * ::std::mem::size_of::<T>()) as u64, MemcpyKind::DeviceToHost) };
     }
 }
 

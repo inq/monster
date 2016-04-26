@@ -21,12 +21,12 @@ fn main() {
     let src_desc = TensorDescriptor::new(&[240, 240, 3], &[3 * 240, 3, 1], DataType::Float).unwrap();
     let dst_desc = TensorDescriptor::new(&[240, 240, 3], &[3 * 240, 3, 1], DataType::Float).unwrap();
 
-    let mut src = cuda::Memory::new((buf_float.len() * 4) as u64);
-    let mut dst = cuda::Memory::new((buf_float.len() * 4) as u64);
+    let mut src = cuda::Memory::<f32>::new(buf_float.len());
+    let mut dst = cuda::Memory::<f32>::new(buf_float.len());
 
-    src.write(buf_float.as_ptr() as *mut ::libc::c_void, (buf_float.len() * 4) as u64);
+    src.write(buf_float.as_ptr() as *mut ::libc::c_void, buf_float.len());
     let res = cudnn.sigmoid_forward::<f32>(&src_desc, src.data, &dst_desc, dst.data, ScalParams::default());
-    dst.read(buf_float.as_ptr() as *mut ::libc::c_void, (buf_float.len() * 4) as u64);
+    dst.read(buf_float.as_ptr() as *mut ::libc::c_void, buf_float.len());
 
     // write png image
     let buf_output = buf_float.into_iter().map(|x: f32| (x * 255.0) as u8).collect::<Vec<_>>();
