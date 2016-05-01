@@ -2,8 +2,8 @@ enum Context {}
 pub type Handle = *mut Context;
 pub type TensorDescriptor = *mut Context;
 
+#[allow(dead_code)]
 #[repr(C)]
-#[derive(Debug)]
 pub enum Status {
     Success = 0,
     NotInitialized = 1,
@@ -18,12 +18,14 @@ pub enum Status {
     LicenseError = 10,
 }
 
+#[allow(dead_code)]
 #[repr(C)]
 pub enum Format {
     NCHW = 0,
     NWHC = 1
 }
 
+#[allow(dead_code)]
 #[repr(C)]
 pub enum DataType {
     Float = 0,
@@ -31,6 +33,7 @@ pub enum DataType {
     Half = 2
 }
 
+#[allow(dead_code)]
 #[repr(C)]
 pub enum ActivationDescriptor {
     Sigmoid = 0,
