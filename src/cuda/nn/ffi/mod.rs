@@ -1,4 +1,4 @@
-enum Context {}
+pub enum Context {}
 pub type Handle = *mut Context;
 pub type TensorDescriptor = *mut Context;
 
