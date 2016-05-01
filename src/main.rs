@@ -1,17 +1,13 @@
-extern crate cudnn;
 extern crate libc;
 extern crate image;
 
 mod cuda;
 
 use std::path::Path;
-use cudnn::{Cudnn, TensorDescriptor};
-use cudnn::utils::{ScalParams, DataType};
 use cuda::nn;
 
 fn main() {
-    let cudnn = Cudnn::new().unwrap();
-    let _dnn = unsafe {nn::Cudnn::new() };
+    let cudnn = unsafe {nn::Cudnn::new() };
 
     // read png image
     let img = image::open(&Path::new("images/hr.png")).unwrap();
@@ -19,14 +15,14 @@ fn main() {
     let buf_float = buf.into_iter().map(|x: u8| (x as f32) / 255.0).collect::<Vec<_>>();
 
     // alloc device memory
-    let src_desc = TensorDescriptor::new(&[240, 240, 3], &[3 * 240, 3, 1], DataType::Float).unwrap();
-    let dst_desc = TensorDescriptor::new(&[240, 240, 3], &[3 * 240, 3, 1], DataType::Float).unwrap();
+    let _src_desc = unsafe { nn::Tensor::new_4d(1, 3, 240, 240) };
+    let _dst_desc = unsafe { nn::Tensor::new_4d(1, 3, 240, 240) };
 
     let mut src = cuda::Memory::<f32>::new(buf_float.len());
     let mut dst = cuda::Memory::<f32>::new(buf_float.len());
 
     src.write(&buf_float);
-    let res = cudnn.sigmoid_forward::<f32>(&src_desc, src.data, &dst_desc, dst.data, ScalParams::default());
+    cudnn.sigmoid_forward(_src_desc, &src, _dst_desc, &mut dst);
     dst.read(&buf_float);
 
     // write png image

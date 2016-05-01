@@ -1,10 +1,9 @@
 enum Context {}
 pub type Handle = *mut Context;
 pub type TensorDescriptor = *mut Context;
-pub type TensorFormat = *mut Context;
-pub type DataType = *mut Context;
 
 #[repr(C)]
+#[derive(Debug)]
 pub enum Status {
     Success = 0,
     NotInitialized = 1,
@@ -19,6 +18,27 @@ pub enum Status {
     LicenseError = 10,
 }
 
+#[repr(C)]
+pub enum Format {
+    NCHW = 0,
+    NWHC = 1
+}
+
+#[repr(C)]
+pub enum DataType {
+    Float = 0,
+    Double = 1,
+    Half = 2
+}
+
+#[repr(C)]
+pub enum ActivationDescriptor {
+    Sigmoid = 0,
+    ReLU = 1,
+    Tanh = 2,
+    ClippedReLU = 3
+}
+
 extern "C" {
     pub fn cudnnCreate(handle: *mut Handle) -> Status;
 
@@ -28,11 +48,22 @@ extern "C" {
     
     pub fn cudnnSetTensor4dDescriptor(
         tensorDesc: TensorDescriptor,
-        format: TensorFormat,
+        format: Format,
         dataType: DataType,
         n: ::libc::c_int,
         c: ::libc::c_int,
         h: ::libc::c_int,
         w: ::libc::c_int
+    ) -> Status;
+
+    pub fn cudnnActivationForward(
+        handle: Handle,
+        activationDesc: ActivationDescriptor,
+        alpha: *const ::libc::c_void,
+        srcDesc: TensorDescriptor,
+        srcData: *const ::libc::c_void,
+        beta: *const ::libc::c_void,
+        destDesc: TensorDescriptor,
+        destData: *const ::libc::c_void
     ) -> Status;
 }

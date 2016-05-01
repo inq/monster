@@ -1,7 +1,7 @@
 use super::ffi;
 
 pub struct Tensor {
-    descriptor: ffi::TensorDescriptor
+    pub descriptor: ffi::TensorDescriptor
 }
 
 impl Tensor {
@@ -11,5 +11,16 @@ impl Tensor {
         Tensor {
             descriptor : descriptor
         }
+    }
+
+    pub unsafe fn new_4d(n: i32, c: i32, h: i32, w: i32) -> Tensor {
+        let tensor = Tensor::new();
+        let status = ffi::cudnnSetTensor4dDescriptor(
+            tensor.descriptor,
+            ffi::Format::NCHW,
+            ffi::DataType::Float,
+            n, c, h, w);
+
+        tensor
     }
 }
