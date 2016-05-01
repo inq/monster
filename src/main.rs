@@ -7,9 +7,11 @@ mod cuda;
 use std::path::Path;
 use cudnn::{Cudnn, TensorDescriptor};
 use cudnn::utils::{ScalParams, DataType};
+use cuda::nn;
 
 fn main() {
     let cudnn = Cudnn::new().unwrap();
+    let _dnn = unsafe {nn::Cudnn::new() };
 
     // read png image
     let img = image::open(&Path::new("images/hr.png")).unwrap();
