@@ -17,9 +17,8 @@ fn run() -> Result<(), &'static str> {
     let buf_float = buf.into_iter().map(|x: u8| (x as f32) / 255.0).collect::<Vec<_>>();
 
     // alloc device memory
-    let _src_desc = unsafe { nn::Tensor::new_4d(1, 3, 240, 240) };
-    let _dst_desc = unsafe { nn::Tensor::new_4d(1, 3, 240, 240) };
-
+    let _src_desc = try! { nn::Tensor::new_4d(1, 3, 240, 240) };
+    let _dst_desc = try! { nn::Tensor::new_4d(1, 3, 240, 240) };
     let mut src = cuda::Memory::<f32>::new(buf_float.len());
     let mut dst = cuda::Memory::<f32>::new(buf_float.len());
 
