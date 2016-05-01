@@ -9,7 +9,7 @@ use cuda::nn;
 
 
 fn run() -> Result<(), &'static str> {
-    let mut cudnn = try!{ nn::Cudnn::new() };
+    let cudnn = try!{ nn::Cudnn::new() };
 
     // read png image
     let img = image::open(&Path::new("images/hr.png")).unwrap();
@@ -19,7 +19,7 @@ fn run() -> Result<(), &'static str> {
     // alloc device memory
     let _src_desc = try! { nn::Tensor::new_4d(1, 3, 240, 240) };
     let _dst_desc = try! { nn::Tensor::new_4d(1, 3, 240, 240) };
-    let mut src = try! { cuda::Memory::<f32>::new(buf_float.len()) };
+    let src = try! { cuda::Memory::<f32>::new(buf_float.len()) };
     let mut dst = try! { cuda::Memory::<f32>::new(buf_float.len()) };
 
     try! { src.write(&buf_float) };
@@ -28,8 +28,10 @@ fn run() -> Result<(), &'static str> {
 
     // write png image
     let buf_output = buf_float.into_iter().map(|x: f32| (x * 255.0) as u8).collect::<Vec<_>>();
-    image::save_buffer(&Path::new("images/output.png"), &buf_output, 240, 240, image::RGB(8));
-    Ok(())
+    match image::save_buffer(&Path::new("images/output.png"), &buf_output, 240, 240, image::RGB(8)) {
+        Ok(()) => Ok(()),
+        Err(_) => Err("Failed to save the result image file.")
+    }
 }
 
 fn main() {
