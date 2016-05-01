@@ -19,12 +19,12 @@ fn run() -> Result<(), &'static str> {
     // alloc device memory
     let _src_desc = try! { nn::Tensor::new_4d(1, 3, 240, 240) };
     let _dst_desc = try! { nn::Tensor::new_4d(1, 3, 240, 240) };
-    let mut src = cuda::Memory::<f32>::new(buf_float.len());
-    let mut dst = cuda::Memory::<f32>::new(buf_float.len());
+    let mut src = try! { cuda::Memory::<f32>::new(buf_float.len()) };
+    let mut dst = try! { cuda::Memory::<f32>::new(buf_float.len()) };
 
-    src.write(&buf_float);
-    cudnn.sigmoid_forward(_src_desc, &src, _dst_desc, &mut dst);
-    dst.read(&buf_float);
+    try! { src.write(&buf_float) };
+    try! { cudnn.sigmoid_forward(_src_desc, &src, _dst_desc, &mut dst) };
+    try! { dst.read(&buf_float) };
 
     // write png image
     let buf_output = buf_float.into_iter().map(|x: f32| (x * 255.0) as u8).collect::<Vec<_>>();
