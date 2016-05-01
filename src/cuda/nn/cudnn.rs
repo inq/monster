@@ -1,4 +1,3 @@
-
 use super::ffi;
 use cuda;
 use std::ptr;
@@ -8,11 +7,13 @@ pub struct Cudnn {
 }
 
 impl Cudnn {
-    pub unsafe fn new() -> Cudnn {
+    pub fn new() -> Result<Cudnn, &'static str> {
         let mut handle: ffi::Handle = ptr::null_mut();
-        let status = ffi::cudnnCreate(&mut handle);
-        Cudnn {
-            handle : handle
+        match unsafe { ffi::cudnnCreate(&mut handle) } {
+            ffi::Status::Success => Ok(Cudnn { handle : handle }),
+            ffi::Status::NotInitialized => Err("CUDA Runtime API initialization failed."),
+            ffi::Status::AllocFailed => Err("The resources could not be allocated."),
+            _ => Err("Unknown Error")
         }
     }
 
@@ -20,17 +21,19 @@ impl Cudnn {
                            src_desc: super::Tensor,
                            src: &cuda::Memory<f32>,
                            dst_desc: super::Tensor,
-                           dst: &mut cuda::Memory<f32>) -> Cudnn {
-        let status = unsafe {ffi::cudnnActivationForward(self.handle,
-                                                         ffi::ActivationDescriptor::Sigmoid,
-                                                         *&[1.0f32].as_ptr() as *const ::libc::c_void,
-                                                         src_desc.descriptor,
-                                                         src.data,
-                                                         *&[0.0f32].as_ptr() as *const ::libc::c_void,
-                                                         dst_desc.descriptor,
-                                                         dst.data) };
-        println!("{:?}", status);
-
-        self
+                           dst: &mut cuda::Memory<f32>) -> Result<(), &'static str> {
+        match unsafe { ffi::cudnnActivationForward(self.handle,
+                                                   ffi::ActivationDescriptor::Sigmoid,
+                                                   *&[1.0f32].as_ptr() as *const ::libc::c_void,
+                                                   src_desc.descriptor,
+                                                   src.data,
+                                                   *&[0.0f32].as_ptr() as *const ::libc::c_void,
+                                                   dst_desc.descriptor,
+                                                   dst.data) } {
+            ffi::Status::Success => Ok(()),
+            ffi::Status::BadParam => Err("Bad Parameters."),
+            ffi::Status::ExecutionFailed => Err("The function failed to launch on the GPU."),
+            _ => Err("Unknown Error")
+        }
     }
 }

@@ -3,11 +3,13 @@ extern crate image;
 
 mod cuda;
 
+use std::process::exit;
 use std::path::Path;
 use cuda::nn;
 
-fn main() {
-    let cudnn = unsafe {nn::Cudnn::new() };
+
+fn run() -> Result<(), &'static str> {
+    let mut cudnn = try!{ nn::Cudnn::new() };
 
     // read png image
     let img = image::open(&Path::new("images/hr.png")).unwrap();
@@ -28,5 +30,15 @@ fn main() {
     // write png image
     let buf_output = buf_float.into_iter().map(|x: f32| (x * 255.0) as u8).collect::<Vec<_>>();
     image::save_buffer(&Path::new("images/output.png"), &buf_output, 240, 240, image::RGB(8));
+    Ok(())
+}
 
+fn main() {
+    match run() {
+        Ok(_) => exit(0),
+        Err(e) => {
+            println!("{}", e);
+            exit(1)
+        }
+    }
 }
