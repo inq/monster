@@ -17,9 +17,7 @@ impl Cudnn {
         let mut handle: ffi::Handle = ptr::null_mut();
         match unsafe { ffi::cudnnCreate(&mut handle) } {
             ffi::Status::Success => Ok(Cudnn { handle : handle }),
-            ffi::Status::NotInitialized => Err("CUDA Runtime API initialization failed."),
-            ffi::Status::AllocFailed => Err("The resources could not be allocated."),
-            _ => Err("Unknown Error")
+            e => Err(e.to_str())
         }
     }
 
@@ -37,9 +35,7 @@ impl Cudnn {
                                                    dst_desc.descriptor,
                                                    dst.data) } {
             ffi::Status::Success => Ok(()),
-            ffi::Status::BadParam => Err("Bad Parameters."),
-            ffi::Status::ExecutionFailed => Err("The function failed to launch on the GPU."),
-            _ => Err("Unknown Error")
+            e => Err(e.to_str())
         }
     }
 }

@@ -1,3 +1,6 @@
+use std::ffi::CStr;
+use std::str;
+
 #[allow(dead_code)]
 #[repr(C)]
 pub enum Error {
@@ -6,6 +9,13 @@ pub enum Error {
     InvalidValue = 11,
     InvalidDevicePointer = 17,
     InvalidMemcpyDirection = 21
+}
+
+impl Error {
+    pub fn to_str(self) -> &'static str{
+        let buf = unsafe { CStr::from_ptr(cudaGetErrorString(self) ) }.to_bytes();
+        str::from_utf8(buf).unwrap()
+    }
 }
 
 #[allow(dead_code)]
@@ -19,6 +29,8 @@ pub enum MemcpyKind {
 }
 
 extern "C" {
+    pub fn cudaGetErrorString(error: Error) -> *const i8;
+    
     pub fn cudaMalloc(devPtr: *mut *mut ::libc::c_void,
                       size: ::libc::c_ulong)
         -> Error;

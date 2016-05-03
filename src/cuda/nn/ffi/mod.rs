@@ -1,3 +1,6 @@
+use std::ffi::CStr;
+use std::str;
+
 pub enum Context {}
 pub type Handle = *mut Context;
 pub type TensorDescriptor = *mut Context;
@@ -16,6 +19,13 @@ pub enum Status {
     ExecutionFailed = 8,
     NotSupported = 9,
     LicenseError = 10,
+}
+
+impl Status {
+    pub fn to_str(self) -> &'static str{
+        let buf = unsafe { CStr::from_ptr(cudnnGetErrorString(self) ) }.to_bytes();
+        str::from_utf8(buf).unwrap()
+    }
 }
 
 #[allow(dead_code)]
@@ -46,6 +56,8 @@ extern "C" {
     pub fn cudnnCreate(handle: *mut Handle) -> Status;
 
     pub fn cudnnDestroy(handle: Handle) -> Status;
+
+    pub fn cudnnGetErrorString(status: Status) -> *const i8;
 
     pub fn cudnnCreateTensorDescriptor(tensorDesc: *mut TensorDescriptor) -> Status;
     

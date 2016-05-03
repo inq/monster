@@ -18,7 +18,7 @@ fn run() -> Result<(), &'static str> {
 
     // alloc device memory
     let _src_desc = try! { nn::Tensor::new_4d(1, 3, 240, 240) };
-    let _dst_desc = try! { nn::Tensor::new_4d(1, 3, 240, 240) };
+    let _dst_desc = try! { nn::Tensor::new_4d(1, 3, 240, 230) };
     let src = try! { cuda::Memory::<f32>::new(buf_float.len()) };
     let mut dst = try! { cuda::Memory::<f32>::new(buf_float.len()) };
 

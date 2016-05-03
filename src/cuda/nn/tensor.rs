@@ -9,8 +9,7 @@ impl Tensor {
         let mut descriptor: ffi::Handle = ::std::ptr::null_mut();
         match unsafe { ffi::cudnnCreateTensorDescriptor(&mut descriptor) } {
             ffi::Status::Success => Ok(Tensor { descriptor: descriptor }),
-            ffi::Status::AllocFailed => Err("The resources could not be allocated."),
-            _ => Err("Unknown Error")
+            e => Err(e.to_str())
         }
     }
 
@@ -21,9 +20,7 @@ impl Tensor {
                                                        ffi::DataType::Float,
                                                        n, c, h, w) } {
             ffi::Status::Success => Ok(tensor),
-            ffi::Status::BadParam => Err("At least one of the parameters n,c,h,w was negative or format has an invalid enumerant value or dataType has an invalid enumerant value."),
-            ffi::Status::NotSupported => Err("The total size of the tensor descriptor exceeds the maximim limit of 2 Giga-elements."),
-            _ => Err("Unknown Error")
+            e => Err(e.to_str())
         }
     }
 }

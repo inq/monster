@@ -16,8 +16,7 @@ impl<T> Memory<T> {
                 size: size,
                 dummy: []
             }),
-            ffi::Error::MemoryAllocation => Err("Unable to allocate enough memory to perform the requested operation."),
-            _ => Err("Unknown error")
+            e => Err(e.to_str())
         }
     }
 
@@ -27,10 +26,7 @@ impl<T> Memory<T> {
                                        (data.len() * ::std::mem::size_of::<T>()) as u64,
                                        ffi::MemcpyKind::HostToDevice) } {
             ffi::Error::Success => Ok(()),
-            ffi::Error::InvalidValue => Err("one or more of the parameters passed to the API call is not within an acceptable range of values."),
-            ffi::Error::InvalidDevicePointer => Err("At least one device pointer passed to the API call is not a valid device pointer."),
-            ffi::Error::InvalidMemcpyDirection => Err("The direction of the memcpy passed to the API call is not one of the types specified by cudaMemcpyKind."),
-            _ => Err("Unknown error")
+            e => Err(e.to_str())
         }
     }
 
@@ -40,10 +36,7 @@ impl<T> Memory<T> {
                                        (data.len() * ::std::mem::size_of::<T>()) as u64,
                                        ffi::MemcpyKind::DeviceToHost) } {
             ffi::Error::Success => Ok(()),
-            ffi::Error::InvalidValue => Err("one or more of the parameters passed to the API call is not within an acceptable range of values."),
-            ffi::Error::InvalidDevicePointer => Err("At least one device pointer passed to the API call is not a valid device pointer."),
-            ffi::Error::InvalidMemcpyDirection => Err("The direction of the memcpy passed to the API call is not one of the types specified by cudaMemcpyKind."),
-            _ => Err("Unknown error")
+            e => Err(e.to_str())
         }
     }
 }
