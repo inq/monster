@@ -1,4 +1,4 @@
-use cuda::ffi;
+use cudart::ffi;
 
 #[allow(dead_code)]
 pub struct Memory<T> {

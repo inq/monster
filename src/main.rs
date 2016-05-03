@@ -1,15 +1,14 @@
 extern crate libc;
 extern crate image;
 
-mod cuda;
+mod cudart;
+mod cudnn;
 
 use std::process::exit;
 use std::path::Path;
-use cuda::nn;
-
 
 fn run() -> Result<(), &'static str> {
-    let cudnn = try!{ nn::Cudnn::new() };
+    let cudnn = try!{ cudnn::Cudnn::new() };
 
     // read png image
     let img = image::open(&Path::new("images/hr.png")).unwrap();
@@ -17,10 +16,10 @@ fn run() -> Result<(), &'static str> {
     let buf_float = buf.into_iter().map(|x: u8| (x as f32) / 255.0).collect::<Vec<_>>();
 
     // alloc device memory
-    let _src_desc = try! { nn::Tensor::new_4d(1, 3, 240, 240) };
-    let _dst_desc = try! { nn::Tensor::new_4d(1, 3, 240, 230) };
-    let src = try! { cuda::Memory::<f32>::new(buf_float.len()) };
-    let mut dst = try! { cuda::Memory::<f32>::new(buf_float.len()) };
+    let _src_desc = try! { cudnn::Tensor::new_4d(1, 3, 240, 240) };
+    let _dst_desc = try! { cudnn::Tensor::new_4d(1, 3, 240, 240) };
+    let src = try! { cudart::Memory::<f32>::new(buf_float.len()) };
+    let mut dst = try! { cudart::Memory::<f32>::new(buf_float.len()) };
 
     try! { src.write(&buf_float) };
     try! { cudnn.sigmoid_forward(_src_desc, &src, _dst_desc, &mut dst) };
