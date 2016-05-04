@@ -3,12 +3,16 @@ extern crate image;
 
 mod cudart;
 mod cudnn;
+mod cifar;
 
 use std::process::exit;
 use std::path::Path;
+use std::env;
 
-fn run() -> Result<(), &'static str> {
+fn run(args: Vec<String>) -> Result<(), &'static str> {
     let cudnn = try!{ cudnn::Cudnn::new() };
+
+    let cifar = cifar::Cifar::new(args[1].clone());
 
     // read png image
     let img = image::open(&Path::new("images/hr.png")).unwrap();
@@ -34,7 +38,7 @@ fn run() -> Result<(), &'static str> {
 }
 
 fn main() {
-    match run() {
+    match run(env::args().collect()) {
         Ok(_) => exit(0),
         Err(e) => {
             println!("{}", e);
