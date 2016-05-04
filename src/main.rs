@@ -12,7 +12,7 @@ use std::env;
 fn run(args: Vec<String>) -> Result<(), &'static str> {
     let cudnn = try!{ cudnn::Cudnn::new() };
 
-    let cifar = cifar::Cifar::new(args[1].clone());
+    let cifar = cifar::Cifar::new(&args[1]);
 
     // read png image
     let img = image::open(&Path::new("images/hr.png")).unwrap();
@@ -31,10 +31,14 @@ fn run(args: Vec<String>) -> Result<(), &'static str> {
 
     // write png image
     let buf_output = buf_float.into_iter().map(|x: f32| (x * 255.0) as u8).collect::<Vec<_>>();
+    image::save_buffer(&Path::new("images/cifar.png"), &cifar.images.iter().nth(9999).unwrap().data, 32, 32, image::RGB(8));
+    
     match image::save_buffer(&Path::new("images/output.png"), &buf_output, 240, 240, image::RGB(8)) {
         Ok(()) => Ok(()),
         Err(_) => Err("Failed to save the result image file.")
     }
+
+
 }
 
 fn main() {
