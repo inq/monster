@@ -4,6 +4,7 @@ extern crate image;
 mod cudart;
 mod cudnn;
 mod cifar;
+mod util;
 
 use std::process::exit;
 use std::path::Path;

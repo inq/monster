@@ -4,34 +4,22 @@ use std::path::Path;
 use std::io::Read;
 use std::io::Error;
 
+use util::Image;
+
 pub struct Cifar {
     path: String,
-    pub images: LinkedList<Img>
-}
-
-pub struct Img {
-    label: u8,
-    pub data: [u8; 3072]
+    pub images: LinkedList<Image<u8>>
 }
 
 impl Cifar {
-    fn read_img(file: &mut File) -> Result<Img, &'static str> {
-        let mut img_buf = [0u8; 3072];
-        let mut img = Img { label : 0, data : [0; 3072] };
+    fn read_img(file: &mut File) -> Result<Image<u8>, &'static str> {
         let mut buf : [u8; 1] = [0];
 
         try!(match file.read(&mut buf) {
             Ok(len) if len == buf.len() => Ok(()),
             _ => Err("EOF")
         });
-        try!(match file.read(&mut img_buf) {
-            Ok(len) if len == img_buf.len() => Ok(()),
-            _ => Err("EOF")
-        });
-        for i in 0..img.data.len() {
-            img.data[i] = img_buf[(i % 3) * (32 * 32) + (i / 3)];
-        }
-        Ok(img)
+        Image::from_file(file, 32, 32, buf[0])
     }
     
     pub fn new(loc: &String) -> Cifar {
