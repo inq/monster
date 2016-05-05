@@ -14,32 +14,18 @@ fn run(args: Vec<String>) -> Result<(), &'static str> {
     let cudnn = try!{ cudnn::Cudnn::new() };
 
     let cifar = cifar::Cifar::new(&args[1]);
-
-    // read png image
-    let img = image::open(&Path::new("images/hr.png")).unwrap();
-    let buf = img.raw_pixels();
-    let buf_float = buf.into_iter().map(|x: u8| (x as f32) / 255.0).collect::<Vec<_>>();
+    let image = cifar.images.iter().nth(9999).unwrap();
 
     // alloc device memory
-    let _src_desc = try! { cudnn::Tensor::new_4d(1, 3, 240, 240) };
-    let _dst_desc = try! { cudnn::Tensor::new_4d(1, 3, 240, 240) };
-    let src = try! { cudart::Memory::<f32>::new(buf_float.len()) };
-    let mut dst = try! { cudart::Memory::<f32>::new(buf_float.len()) };
-
-    try! { src.write(&buf_float) };
+    let _src_desc = try! { cudnn::Tensor::new_4d(1, 3, 32, 32) };
+    let _dst_desc = try! { cudnn::Tensor::new_4d(1, 3, 32, 32) };
+    let mut dst = try! { cudart::Memory::<f32>::new(32 * 32 * 3) };
+    let src = try! { image.to_device() };
     try! { cudnn.sigmoid_forward(_src_desc, &src, _dst_desc, &mut dst) };
-    try! { dst.read(&buf_float) };
+    let img = try! { util::Image::from_device(dst, 1u8, 32, 32) };
 
     // write png image
-    let buf_output = buf_float.into_iter().map(|x: f32| (x * 255.0) as u8).collect::<Vec<_>>();
-    image::save_buffer(&Path::new("images/cifar.png"), &cifar.images.iter().nth(9999).unwrap().data_whc(), 32, 32, image::RGB(8));
-    
-    match image::save_buffer(&Path::new("images/output.png"), &buf_output, 240, 240, image::RGB(8)) {
-        Ok(()) => Ok(()),
-        Err(_) => Err("Failed to save the result image file.")
-    }
-
-
+    img.save("images/cifar.png")
 }
 
 fn main() {
