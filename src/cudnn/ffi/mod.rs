@@ -4,6 +4,8 @@ use std::str;
 pub enum Context {}
 pub type Handle = *mut Context;
 pub type TensorDescriptor = *mut Context;
+pub type FilterDescriptor = *mut Context;
+pub type ConvolutionDescriptor = *mut Context;
 
 #[allow(dead_code)]
 #[repr(C)]
@@ -52,7 +54,16 @@ pub enum ActivationDescriptor {
     ClippedReLU = 3
 }
 
+#[allow(dead_code)]
+#[repr(C)]
+pub enum ConvolutionMode {
+    Convolution = 0,
+    CrossCorrelation = 1
+}
+    
+
 extern "C" {
+    // Cudnn
     pub fn cudnnCreate(handle: *mut Handle) -> Status;
 
     pub fn cudnnDestroy(handle: Handle) -> Status;
@@ -60,7 +71,41 @@ extern "C" {
     pub fn cudnnGetErrorString(status: Status) -> *const i8;
 
     pub fn cudnnCreateTensorDescriptor(tensorDesc: *mut TensorDescriptor) -> Status;
-    
+
+    // Filter
+    pub fn cudnnCreateFilterDescriptor(filterDesc: *mut FilterDescriptor) -> Status;
+
+    pub fn cudnnSetFilter4dDescriptor(filterDesc: FilterDescriptor,
+                                      dataType: DataType,
+                                      k: ::libc::c_int,
+                                      c: ::libc::c_int,
+                                      h: ::libc::c_int,
+                                      w: ::libc::c_int) -> Status;
+
+    pub fn cudnnDestroyFilterDescriptor(filterDesc: FilterDescriptor) -> Status;
+
+    // Convolution
+    pub fn cudnnCreateConvolutionDescriptor(convDesc: *mut ConvolutionDescriptor) -> Status;
+
+    pub fn cudnnSetConvolution2dDescriptor(convDesc: ConvolutionDescriptor,
+                                           pad_h: ::libc::c_int,
+                                           pad_w: ::libc::c_int,
+                                           u: ::libc::c_int,
+                                           v: ::libc::c_int,
+                                           upscalex: ::libc::c_int,
+                                           upscaley: ::libc::c_int,
+                                           mode: ConvolutionMode) -> Status;
+
+    pub fn cudnnGetConvolution2dForwardOutputDim(convDesc: ConvolutionDescriptor,
+                                                 inputTensorDesc: TensorDescriptor,
+                                                 filterDesc: FilterDescriptor,
+                                                 n: *mut ::libc::c_int,
+                                                 c: *mut ::libc::c_int,
+                                                 h: *mut ::libc::c_int,
+                                                 w: *mut ::libc::c_int) -> Status;
+
+    pub fn cudnnDestroyConvolutionDescriptor(convDesc: ConvolutionDescriptor) -> Status;
+
     pub fn cudnnSetTensor4dDescriptor(
         tensorDesc: TensorDescriptor,
         format: Format,
