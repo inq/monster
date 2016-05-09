@@ -116,4 +116,41 @@ impl Cudnn {
             e => Err(e.to_str())
         }
     }
+
+    pub fn conv_forward_src(&self,
+                            x_desc: &Tensor,
+                            x: &Memory<f32>,
+                            w_desc: &Filter4d,
+                            w: &Memory<f32>,
+                            conv_desc: &Convolution2d,
+                            y_desc: &Tensor) -> Result<(), &'static str> {
+        let alpha = 1f32;
+        let beta = 0f32;
+        let algo = try!(self.get_conv_forward_algo(&x_desc,
+                                                   &w_desc,
+                                                   &conv_desc,
+                                                   &y_desc));
+        let workspace_size = try!(self.get_conv_forward_workspace_size(&x_desc,
+                                                                       &w_desc,
+                                                                       &conv_desc,
+                                                                       &y_desc,
+                                                                       algo));
+        let workspace = try!(Memory::<f32>::new(workspace_size / 4));
+        match unsafe { ffi::cudnnConvolutionForward(self.handle,
+                                                    &alpha as *const _ as *const ::libc::c_void,
+                                                    x_desc.desc,
+                                                    x.data,
+                                                    w_desc.desc,
+                                                    w.data,
+                                                    conv_desc.desc,
+                                                    algo,
+                                                    workspace.data,
+                                                    workspace_size,
+                                                    &beta as *const _ as *const ::libc::c_void,
+                                                    y_desc.desc,
+                                                    x.data) } {
+            ffi::Status::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
 }
