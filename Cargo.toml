@@ -3,9 +3,6 @@ name = "monster"
 version = "0.1.0"
 authors = ["inkyu <gofiri@gmail.com>"]
 
-[lib]
-name = "monster"
-
 [dependencies]
 libc = "0.2"
 image = "*"
