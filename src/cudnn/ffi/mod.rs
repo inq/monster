@@ -69,8 +69,7 @@ pub enum ConvolutionFwdPreference {
     SpecifyWorkspaceLimit = 2
 }
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 #[allow(dead_code)]
 #[repr(C)]
 pub enum ConvolutionFwdAlgo {
@@ -142,6 +141,20 @@ extern "C" {
                                                    yDesc: TensorDescriptor,
                                                    algo: ConvolutionFwdAlgo,
                                                    sizeInBytes: *mut ::libc::size_t) -> Status;
+
+    pub fn cudnnConvolutionForward(handle: Handle,
+                                   alpha: *const ::libc::c_void,
+                                   xDesc: TensorDescriptor,
+                                   x: *const ::libc::c_void,
+                                   wDesc: FilterDescriptor,
+                                   w: *const ::libc::c_void,
+                                   convDesc: ConvolutionDescriptor,
+                                   algo: ConvolutionFwdAlgo,
+                                   workspace: *mut ::libc::c_void,
+                                   workSpaceSizeInBytes: ::libc::size_t,
+                                   beta: *const ::libc::c_void,
+                                   y_desc: TensorDescriptor,
+                                   y: *mut ::libc::c_void) -> Status;
 
     pub fn cudnnDestroyConvolutionDescriptor(convDesc: ConvolutionDescriptor) -> Status;
 

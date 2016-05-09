@@ -6,12 +6,7 @@ mod test {
     use monster::cudnn::{Cudnn, Filter4d, Tensor, Convolution2d, ConvolutionFwdAlgo};
 
     #[test]
-    fn conv_forward_output_dim() {
-        let filter = Filter4d::new(3, 3, 3, 3).unwrap();
-    }
-
-    #[test]
-    fn conv_get_forward_algo() {
+    fn convolution_test() {
         let cudnn = Cudnn::new().unwrap();
         let filter = Filter4d::new(10, 10, 3, 3).unwrap();
         let src_tensor = Tensor::new_4d(1, 10, 256, 256).unwrap();
@@ -30,5 +25,7 @@ mod test {
                                                              &dst_tensor,
                                                              algo).unwrap();
         assert_eq!(mem_size, 393224); // TODO: why?
+
+        
     }
 }
