@@ -4,7 +4,7 @@ use cudnn::ffi;
 use std::ptr;
 
 pub struct Convolution2d {
-    desc: ffi::ConvolutionDescriptor
+    pub desc: ffi::ConvolutionDescriptor
 }
 
 impl Drop for Convolution2d {
@@ -41,7 +41,7 @@ impl Convolution2d {
         }
     }
 
-    pub fn get_forward_output_dim(self,
+    pub fn get_forward_output_dim(&self,
                                   input_tensor: &Tensor,
                                   filter: &Filter4d) -> Result<(i32, i32, i32, i32), &'static str> {
         let (mut n, mut c, mut h, mut w) = (0i32, 0i32, 0i32, 0i32);

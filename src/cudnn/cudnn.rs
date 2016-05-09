@@ -1,5 +1,6 @@
 use cudnn::ffi;
-use cudart;
+use cudnn::{Tensor, Filter4d, Convolution2d};
+use cudart::Memory;
 use std::ptr;
 
 pub struct Cudnn {
@@ -22,10 +23,10 @@ impl Cudnn {
     }
 
     pub fn sigmoid_forward(self,
-                           src_desc: super::Tensor,
-                           src: &cudart::Memory<f32>,
-                           dst_desc: super::Tensor,
-                           dst: &mut cudart::Memory<f32>) -> Result<(), &'static str> {
+                           src_desc: Tensor,
+                           src: &Memory<f32>,
+                           dst_desc: Tensor,
+                           dst: &mut Memory<f32>) -> Result<(), &'static str> {
         match unsafe { ffi::cudnnActivationForward(self.handle,
                                                    ffi::ActivationDescriptor::Sigmoid,
                                                    *&[1.0f32].as_ptr() as *const ::libc::c_void,
@@ -35,6 +36,25 @@ impl Cudnn {
                                                    dst_desc.desc,
                                                    dst.data) } {
             ffi::Status::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
+
+    pub fn get_conv_forward_algo(&self,
+                                 x_desc: &Tensor,
+                                 w_desc: &Filter4d,
+                                 conv_desc: &Convolution2d,
+                                 y_desc: &Tensor) -> Result<ffi::ConvolutionFwdAlgo, &'static str> {
+        let mut res = ffi::ConvolutionFwdAlgo::ImplicitGemm;
+        match unsafe { ffi::cudnnGetConvolutionForwardAlgorithm(self.handle,
+                                                                x_desc.desc,
+                                                                w_desc.desc,
+                                                                conv_desc.desc,
+                                                                y_desc.desc,
+                                                                ffi::ConvolutionFwdPreference::PreferFastest,
+                                                                0,
+                                                                &mut res) } {
+            ffi::Status::Success => Ok(res),
             e => Err(e.to_str())
         }
     }

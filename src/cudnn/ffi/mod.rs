@@ -60,6 +60,28 @@ pub enum ConvolutionMode {
     Convolution = 0,
     CrossCorrelation = 1
 }
+
+#[allow(dead_code)]
+#[repr(C)]
+pub enum ConvolutionFwdPreference {
+    NoWorkspace = 0,
+    PreferFastest = 1,
+    SpecifyWorkspaceLimit = 2
+}
+
+#[derive(Debug)]
+#[derive(PartialEq)]
+#[allow(dead_code)]
+#[repr(C)]
+pub enum ConvolutionFwdAlgo {
+    ImplicitGemm = 0,
+    ImplicitPrecompGemm = 1,
+    Gemm = 2,
+    Direct = 3,
+    Fft = 4,
+    FftTiling = 5,
+    Winograd = 6
+}
     
 #[link(name = "cudnn")]
 extern "C" {
@@ -103,6 +125,15 @@ extern "C" {
                                                  c: *mut ::libc::c_int,
                                                  h: *mut ::libc::c_int,
                                                  w: *mut ::libc::c_int) -> Status;
+
+    pub fn cudnnGetConvolutionForwardAlgorithm(handle: Handle,
+                                               xDesc: TensorDescriptor,
+                                               wDesc: FilterDescriptor,
+                                               convDesc: ConvolutionDescriptor,
+                                               yDesc: TensorDescriptor,
+                                               preference: ConvolutionFwdPreference,
+                                               memoryLimitInBytes: ::libc::size_t,
+                                               algo: *mut ConvolutionFwdAlgo) -> Status;
 
     pub fn cudnnDestroyConvolutionDescriptor(convDesc: ConvolutionDescriptor) -> Status;
 
