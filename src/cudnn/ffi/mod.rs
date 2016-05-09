@@ -135,6 +135,14 @@ extern "C" {
                                                memoryLimitInBytes: ::libc::size_t,
                                                algo: *mut ConvolutionFwdAlgo) -> Status;
 
+    pub fn cudnnGetConvolutionForwardWorkspaceSize(handle: Handle,
+                                                   xDesc: TensorDescriptor,
+                                                   wDesc: FilterDescriptor,
+                                                   convDesc: ConvolutionDescriptor,
+                                                   yDesc: TensorDescriptor,
+                                                   algo: ConvolutionFwdAlgo,
+                                                   sizeInBytes: *mut ::libc::size_t) -> Status;
+
     pub fn cudnnDestroyConvolutionDescriptor(convDesc: ConvolutionDescriptor) -> Status;
 
     pub fn cudnnSetTensor4dDescriptor(

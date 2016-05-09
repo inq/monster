@@ -58,4 +58,24 @@ impl Cudnn {
             e => Err(e.to_str())
         }
     }
+
+    pub fn get_conv_forward_workspace_size(&self,
+                                           x_desc: &Tensor,
+                                           w_desc: &Filter4d,
+                                           conv_desc: &Convolution2d,
+                                           y_desc: &Tensor,
+                                           algo: ffi::ConvolutionFwdAlgo) -> Result<usize, &'static str> {
+
+        let mut res = 0usize;
+        match unsafe { ffi::cudnnGetConvolutionForwardWorkspaceSize(self.handle,
+                                                                    x_desc.desc,
+                                                                    w_desc.desc,
+                                                                    conv_desc.desc,
+                                                                    y_desc.desc,
+                                                                    algo,
+                                                                    &mut res) } {
+            ffi::Status::Success => Ok(res),
+            e => Err(e.to_str())
+        }
+    }
 }
