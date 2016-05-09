@@ -22,9 +22,12 @@ impl Cifar {
         Image::from_file(file, 32, 32, buf[0])
     }
     
-    pub fn new(loc: &String) -> Cifar {
+    pub fn new(loc: &String) -> Result<Cifar, &'static str> {
         let path = Path::new(loc).join("data_batch_1.bin");
-        let mut file = File::open(path).unwrap();
+        let mut file = match File::open(path) {
+            Ok(file) => file,
+            _ => return Err("Could not read the data file")
+        };
         let mut imgs = LinkedList::new();
         loop {
             match Cifar::read_img(&mut file) {
@@ -32,6 +35,6 @@ impl Cifar {
                 _ => break
             }
         }
-        Cifar { path: loc.clone(), images: imgs }
+        Ok(Cifar { path: loc.clone(), images: imgs })
     }
 }
