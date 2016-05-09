@@ -61,7 +61,7 @@ pub enum ConvolutionMode {
     CrossCorrelation = 1
 }
     
-
+#[link(name = "cudnn")]
 extern "C" {
     // Cudnn
     pub fn cudnnCreate(handle: *mut Handle) -> Status;

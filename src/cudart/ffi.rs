@@ -28,6 +28,7 @@ pub enum MemcpyKind {
     Default = 4
 }
 
+#[link(name = "cudart")]
 extern "C" {
     pub fn cudaGetErrorString(error: Error) -> *const i8;
     
