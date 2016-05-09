@@ -2,7 +2,7 @@ use cudnn::ffi;
 use std::ptr;
 
 pub struct Filter4d {
-    desc: ffi::FilterDescriptor
+    pub desc: ffi::FilterDescriptor
 }
 
 impl Drop for Filter4d {

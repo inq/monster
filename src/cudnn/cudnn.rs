@@ -29,10 +29,10 @@ impl Cudnn {
         match unsafe { ffi::cudnnActivationForward(self.handle,
                                                    ffi::ActivationDescriptor::Sigmoid,
                                                    *&[1.0f32].as_ptr() as *const ::libc::c_void,
-                                                   src_desc.descriptor,
+                                                   src_desc.desc,
                                                    src.data,
                                                    *&[0.0f32].as_ptr() as *const ::libc::c_void,
-                                                   dst_desc.descriptor,
+                                                   dst_desc.desc,
                                                    dst.data) } {
             ffi::Status::Success => Ok(()),
             e => Err(e.to_str())

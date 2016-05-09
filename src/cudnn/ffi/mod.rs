@@ -84,7 +84,7 @@ extern "C" {
 
     pub fn cudnnDestroyFilterDescriptor(filterDesc: FilterDescriptor) -> Status;
 
-    // Convolution
+    // Convolution2d
     pub fn cudnnCreateConvolutionDescriptor(convDesc: *mut ConvolutionDescriptor) -> Status;
 
     pub fn cudnnSetConvolution2dDescriptor(convDesc: ConvolutionDescriptor,
