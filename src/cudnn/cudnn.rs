@@ -40,6 +40,22 @@ impl Cudnn {
         }
     }
 
+    pub fn relu_forward_inplace(self,
+                                src_desc: &Tensor,
+                                src: &mut Memory<f32>) -> Result<(), &'static str> {
+        match unsafe { ffi::cudnnActivationForward(self.handle,
+                                                   ffi::ActivationDescriptor::ReLU,
+                                                   *&[1.0f32].as_ptr() as *const ::libc::c_void,
+                                                   src_desc.desc,
+                                                   src.data,
+                                                   *&[0.0f32].as_ptr() as *const ::libc::c_void,
+                                                   src_desc.desc,
+                                                   src.data) } {
+            ffi::Status::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
+
     pub fn get_conv_forward_algo(&self,
                                  x_desc: &Tensor,
                                  w_desc: &Filter4d,
