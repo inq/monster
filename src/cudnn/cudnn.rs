@@ -51,7 +51,7 @@ impl Cudnn {
                                                                 w_desc.desc,
                                                                 conv_desc.desc,
                                                                 y_desc.desc,
-                                                                ffi::ConvolutionFwdPreference::PreferFastest,
+                                                                ffi::ConvolutionFwdPreference::NoWorkspace,
                                                                 0,
                                                                 &mut res) } {
             ffi::Status::Success => Ok(res),
