@@ -6,7 +6,7 @@ use image;
 
 #[allow(dead_code)]
 pub struct Image<T> {
-    info: T,
+    pub info: T,
     width: usize,
     height: usize,
     pub data: Vec<u8>
