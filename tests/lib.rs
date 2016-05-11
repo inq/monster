@@ -18,14 +18,12 @@ mod test {
                                                &filter,
                                                &conv,
                                                &dst_tensor).unwrap();
-        assert_eq!(algo, ConvolutionFwdAlgo::ImplicitPrecompGemm);
+        assert_eq!(algo, ConvolutionFwdAlgo::ImplicitGemm);
         let mem_size = cudnn.get_conv_forward_workspace_size(&src_tensor,
                                                              &filter,
                                                              &conv,
                                                              &dst_tensor,
                                                              algo).unwrap();
-        assert_eq!(mem_size, 393224); // TODO: why?
-
-        
+        assert_eq!(mem_size, 0);
     }
 }

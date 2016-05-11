@@ -1,5 +1,5 @@
 use cudnn::ffi;
-use cudnn::{Tensor, Filter4d, Convolution2d};
+use cudnn::{Tensor, Filter4d, Convolution2d, Pooling};
 use cudart::Memory;
 use std::ptr;
 
@@ -26,7 +26,8 @@ impl Cudnn {
                            src_desc: Tensor,
                            src: &Memory<f32>,
                            dst_desc: Tensor,
-                           dst: &mut Memory<f32>) -> Result<(), &'static str> {
+                           dst: &mut Memory<f32>)
+                           -> Result<(), &'static str> {
         match unsafe { ffi::cudnnActivationForward(self.handle,
                                                    ffi::ActivationDescriptor::Sigmoid,
                                                    *&[1.0f32].as_ptr() as *const ::libc::c_void,
@@ -42,7 +43,8 @@ impl Cudnn {
 
     pub fn relu_forward_inplace(self,
                                 src_desc: &Tensor,
-                                src: &mut Memory<f32>) -> Result<(), &'static str> {
+                                src: &mut Memory<f32>)
+                                -> Result<(), &'static str> {
         match unsafe { ffi::cudnnActivationForward(self.handle,
                                                    ffi::ActivationDescriptor::ReLU,
                                                    *&[1.0f32].as_ptr() as *const ::libc::c_void,
@@ -60,7 +62,8 @@ impl Cudnn {
                                  x_desc: &Tensor,
                                  w_desc: &Filter4d,
                                  conv_desc: &Convolution2d,
-                                 y_desc: &Tensor) -> Result<ffi::ConvolutionFwdAlgo, &'static str> {
+                                 y_desc: &Tensor)
+                                 -> Result<ffi::ConvolutionFwdAlgo, &'static str> {
         let mut res = ffi::ConvolutionFwdAlgo::ImplicitGemm;
         match unsafe { ffi::cudnnGetConvolutionForwardAlgorithm(self.handle,
                                                                 x_desc.desc,
@@ -80,7 +83,8 @@ impl Cudnn {
                                            w_desc: &Filter4d,
                                            conv_desc: &Convolution2d,
                                            y_desc: &Tensor,
-                                           algo: ffi::ConvolutionFwdAlgo) -> Result<usize, &'static str> {
+                                           algo: ffi::ConvolutionFwdAlgo)
+                                           -> Result<usize, &'static str> {
 
         let mut res = 0usize;
         match unsafe { ffi::cudnnGetConvolutionForwardWorkspaceSize(self.handle,
@@ -102,7 +106,8 @@ impl Cudnn {
                         w: &Memory<f32>,
                         conv_desc: &Convolution2d,
                         y_desc: &Tensor,
-                        y: &Memory<f32>) -> Result<(), &'static str> {
+                        y: &Memory<f32>)
+                        -> Result<(), &'static str> {
         let alpha = 1f32;
         let beta = 0f32;
         let algo = try!(self.get_conv_forward_algo(&x_desc,
@@ -139,7 +144,8 @@ impl Cudnn {
                             w_desc: &Filter4d,
                             w: &Memory<f32>,
                             conv_desc: &Convolution2d,
-                            y_desc: &Tensor) -> Result<(), &'static str> {
+                            y_desc: &Tensor)
+                            -> Result<(), &'static str> {
         let alpha = 1f32;
         let beta = 0f32;
         let algo = try!(self.get_conv_forward_algo(&x_desc,
@@ -165,6 +171,28 @@ impl Cudnn {
                                                     &beta as *const _ as *const ::libc::c_void,
                                                     y_desc.desc,
                                                     x.data) } {
+            ffi::Status::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
+
+    pub fn max_pooling_forward(&self,
+                               pooling: &Pooling,
+                               src_tensor: &Tensor,
+                               src_memory: &Memory<f32>,
+                               dst_tensor: &Tensor,
+                               dst_memory: &Memory<f32>) 
+                               -> Result<(), &'static str> {
+        let alpha = 1f32;
+        let beta = 0f32;
+        match unsafe { ffi::cudnnPoolingForward(self.handle,
+                                                &pooling.desc,
+                                                &alpha as *const _ as *const ::libc::c_void,
+                                                src_tensor.desc,
+                                                src_memory.data,
+                                                &beta as *const _ as *const ::libc::c_void,
+                                                dst_tensor.desc,
+                                                dst_memory.data) } {
             ffi::Status::Success => Ok(()),
             e => Err(e.to_str())
         }

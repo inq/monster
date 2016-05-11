@@ -1,10 +1,12 @@
 use std::ffi::CStr;
 use std::str;
+use libc::{c_int, c_void, size_t};
 
 pub enum Context {}
 pub type Handle = *mut Context;
 pub type TensorDescriptor = *mut Context;
 pub type FilterDescriptor = *mut Context;
+pub type PoolingDescriptor = *mut Context;
 pub type ConvolutionDescriptor = *mut Context;
 
 #[allow(dead_code)]
@@ -69,6 +71,14 @@ pub enum ConvolutionFwdPreference {
     SpecifyWorkspaceLimit = 2
 }
 
+#[allow(dead_code)]
+#[repr(C)]
+pub enum PoolingMode {
+    Max = 0,
+    AverageCountIncludePadding = 1,
+    AverageCountExcludePadding = 2
+}
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[allow(dead_code)]
 #[repr(C)]
@@ -85,97 +95,125 @@ pub enum ConvolutionFwdAlgo {
 #[link(name = "cudnn")]
 extern "C" {
     // Cudnn
-    pub fn cudnnCreate(handle: *mut Handle) -> Status;
-
-    pub fn cudnnDestroy(handle: Handle) -> Status;
-
-    pub fn cudnnGetErrorString(status: Status) -> *const i8;
-
-    pub fn cudnnCreateTensorDescriptor(tensorDesc: *mut TensorDescriptor) -> Status;
-
+    pub fn cudnnCreate(handle: *mut Handle)
+                       -> Status;
+    pub fn cudnnDestroy(handle: Handle)
+                        -> Status;
+    pub fn cudnnGetErrorString(status: Status)
+                               -> *const i8;
     // Filter
-    pub fn cudnnCreateFilterDescriptor(filterDesc: *mut FilterDescriptor) -> Status;
-
+    pub fn cudnnCreateFilterDescriptor(filterDesc: *mut FilterDescriptor)
+                                       -> Status;
     pub fn cudnnSetFilter4dDescriptor(filterDesc: FilterDescriptor,
                                       dataType: DataType,
-                                      k: ::libc::c_int,
-                                      c: ::libc::c_int,
-                                      h: ::libc::c_int,
-                                      w: ::libc::c_int) -> Status;
-
-    pub fn cudnnDestroyFilterDescriptor(filterDesc: FilterDescriptor) -> Status;
-
+                                      k: c_int,
+                                      c: c_int,
+                                      h: c_int,
+                                      w: c_int)
+                                      -> Status;
+    pub fn cudnnDestroyFilterDescriptor(filterDesc: FilterDescriptor)
+                                        -> Status;
     // Convolution2d
-    pub fn cudnnCreateConvolutionDescriptor(convDesc: *mut ConvolutionDescriptor) -> Status;
-
+    pub fn cudnnCreateConvolutionDescriptor(convDesc: *mut ConvolutionDescriptor)
+                                            -> Status;
     pub fn cudnnSetConvolution2dDescriptor(convDesc: ConvolutionDescriptor,
-                                           pad_h: ::libc::c_int,
-                                           pad_w: ::libc::c_int,
-                                           u: ::libc::c_int,
-                                           v: ::libc::c_int,
-                                           upscalex: ::libc::c_int,
-                                           upscaley: ::libc::c_int,
-                                           mode: ConvolutionMode) -> Status;
-
+                                           pad_h: c_int,
+                                           pad_w: c_int,
+                                           u: c_int,
+                                           v: c_int,
+                                           upscalex: c_int,
+                                           upscaley: c_int,
+                                           mode: ConvolutionMode)
+                                           -> Status;
     pub fn cudnnGetConvolution2dForwardOutputDim(convDesc: ConvolutionDescriptor,
                                                  inputTensorDesc: TensorDescriptor,
                                                  filterDesc: FilterDescriptor,
-                                                 n: *mut ::libc::c_int,
-                                                 c: *mut ::libc::c_int,
-                                                 h: *mut ::libc::c_int,
-                                                 w: *mut ::libc::c_int) -> Status;
-
+                                                 n: *mut c_int,
+                                                 c: *mut c_int,
+                                                 h: *mut c_int,
+                                                 w: *mut c_int)
+                                                 -> Status;
     pub fn cudnnGetConvolutionForwardAlgorithm(handle: Handle,
                                                xDesc: TensorDescriptor,
                                                wDesc: FilterDescriptor,
                                                convDesc: ConvolutionDescriptor,
                                                yDesc: TensorDescriptor,
                                                preference: ConvolutionFwdPreference,
-                                               memoryLimitInBytes: ::libc::size_t,
-                                               algo: *mut ConvolutionFwdAlgo) -> Status;
-
+                                               memoryLimitInBytes: size_t,
+                                               algo: *mut ConvolutionFwdAlgo)
+                                               -> Status;
     pub fn cudnnGetConvolutionForwardWorkspaceSize(handle: Handle,
                                                    xDesc: TensorDescriptor,
                                                    wDesc: FilterDescriptor,
                                                    convDesc: ConvolutionDescriptor,
                                                    yDesc: TensorDescriptor,
                                                    algo: ConvolutionFwdAlgo,
-                                                   sizeInBytes: *mut ::libc::size_t) -> Status;
-
+                                                   sizeInBytes: *mut size_t)
+                                                   -> Status;
     pub fn cudnnConvolutionForward(handle: Handle,
-                                   alpha: *const ::libc::c_void,
+                                   alpha: *const c_void,
                                    xDesc: TensorDescriptor,
-                                   x: *const ::libc::c_void,
+                                   x: *const c_void,
                                    wDesc: FilterDescriptor,
-                                   w: *const ::libc::c_void,
+                                   w: *const c_void,
                                    convDesc: ConvolutionDescriptor,
                                    algo: ConvolutionFwdAlgo,
-                                   workspace: *mut ::libc::c_void,
-                                   workSpaceSizeInBytes: ::libc::size_t,
-                                   beta: *const ::libc::c_void,
+                                   workspace: *mut c_void,
+                                   workSpaceSizeInBytes: size_t,
+                                   beta: *const c_void,
                                    y_desc: TensorDescriptor,
-                                   y: *mut ::libc::c_void) -> Status;
-
-    pub fn cudnnDestroyConvolutionDescriptor(convDesc: ConvolutionDescriptor) -> Status;
-
-    pub fn cudnnSetTensor4dDescriptor(
-        tensorDesc: TensorDescriptor,
-        format: Format,
-        dataType: DataType,
-        n: ::libc::c_int,
-        c: ::libc::c_int,
-        h: ::libc::c_int,
-        w: ::libc::c_int
-    ) -> Status;
-
-    pub fn cudnnActivationForward(
-        handle: Handle,
-        activationDesc: ActivationDescriptor,
-        alpha: *const ::libc::c_void,
-        srcDesc: TensorDescriptor,
-        srcData: *const ::libc::c_void,
-        beta: *const ::libc::c_void,
-        destDesc: TensorDescriptor,
-        destData: *const ::libc::c_void
-    ) -> Status;
+                                   y: *mut c_void)
+                                   -> Status;
+    pub fn cudnnDestroyConvolutionDescriptor(convDesc: ConvolutionDescriptor)
+                                             -> Status;
+    // Tensor
+    pub fn cudnnCreateTensorDescriptor(tensorDesc: *mut TensorDescriptor)
+                                       -> Status;
+    pub fn cudnnSetTensor4dDescriptor(tensorDesc: TensorDescriptor,
+                                      format: Format,
+                                      dataType: DataType,
+                                      n: c_int,
+                                      c: c_int,
+                                      h: c_int,
+                                      w: c_int)
+                                      -> Status;
+    pub fn cudnnActivationForward(handle: Handle,
+                                  activationDesc: ActivationDescriptor,
+                                  alpha: *const c_void,
+                                  srcDesc: TensorDescriptor,
+                                  srcData: *const c_void,
+                                  beta: *const c_void,
+                                  destDesc: TensorDescriptor,
+                                  destData: *const c_void)
+                                  -> Status;
+    // Pooling
+    pub fn cudnnCreatePoolingDescriptor(handle: *mut PoolingDescriptor)
+                                        -> Status;
+    pub fn cudnnSetPooling2dDescriptor(poolingDesc: PoolingDescriptor,
+                                       mode: PoolingMode,
+                                       windowHeight: c_int,
+                                       windowWidth: c_int,
+                                       verticalPadding: c_int,
+                                       horizontalPadding: c_int,
+                                       verticalStride: c_int,
+                                       horizontalStride: c_int)
+                                       -> Status;
+    pub fn cudnnPoolingForward(handle: Handle,
+                               poolingDesc: *const PoolingDescriptor,
+                               alpha: *const c_void,
+                               xDesc: TensorDescriptor,
+                               x: *const c_void,
+                               beta: *const c_void,
+                               yDesc: TensorDescriptor,
+                               y: *const c_void)
+                               -> Status;
+    pub fn cudnnGetPooling2dForwardOutputDim(poolingDesc: PoolingDescriptor,
+                                             inputDesc: TensorDescriptor,
+                                             outN: *mut c_int,
+                                             outC: *mut c_int,
+                                             outH: *mut c_int,
+                                             outW: *mut c_int)
+                                             -> Status;
+    pub fn cudnnDestroyPoolingDescriptor(poolingDesc: PoolingDescriptor)
+                                         -> Status;
 }
