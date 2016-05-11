@@ -41,7 +41,7 @@ impl Cudnn {
         }
     }
 
-    pub fn relu_forward_inplace(self,
+    pub fn relu_forward_inplace(&self,
                                 src_desc: &Tensor,
                                 src: &mut Memory<f32>)
                                 -> Result<(), &'static str> {
