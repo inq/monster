@@ -5,3 +5,6 @@ pub mod cudart;
 pub mod cublas;
 pub mod cudnn;
 pub mod util;
+pub mod nn;
+
+pub use nn::Nn;

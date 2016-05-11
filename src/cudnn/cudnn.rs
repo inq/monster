@@ -22,7 +22,7 @@ impl Cudnn {
         }
     }
 
-    pub fn sigmoid_forward(self,
+    pub fn sigmoid_forward(&self,
                            src_desc: Tensor,
                            src: &Memory<f32>,
                            dst_desc: Tensor,
