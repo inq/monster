@@ -35,7 +35,7 @@ impl Pooling {
         }
     }
 
-    pub fn output_dim(&self, tensor: Tensor)
+    pub fn output_dim(&self, tensor: &Tensor)
                       -> Result<(i32, i32, i32, i32), &'static str> {
         let (mut n, mut c, mut h, mut w) = (0i32, 0i32, 0i32, 0i32);
         match unsafe { ffi::cudnnGetPooling2dForwardOutputDim(self.desc,

@@ -199,7 +199,7 @@ extern "C" {
                                        horizontalStride: c_int)
                                        -> Status;
     pub fn cudnnPoolingForward(handle: Handle,
-                               poolingDesc: *const PoolingDescriptor,
+                               poolingDesc: PoolingDescriptor,
                                alpha: *const c_void,
                                xDesc: TensorDescriptor,
                                x: *const c_void,

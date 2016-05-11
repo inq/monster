@@ -186,7 +186,7 @@ impl Cudnn {
         let alpha = 1f32;
         let beta = 0f32;
         match unsafe { ffi::cudnnPoolingForward(self.handle,
-                                                &pooling.desc,
+                                                pooling.desc,
                                                 &alpha as *const _ as *const ::libc::c_void,
                                                 src_tensor.desc,
                                                 src_memory.data,
