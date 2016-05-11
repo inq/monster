@@ -73,7 +73,7 @@ impl<T> Image<T> {
     pub fn data_whc(&self) -> Vec<u8> {
         let mut res = vec![0u8; self.size()];
         for i in 0..res.len() {
-            res[i] = self.data[(i % 3) * (32 * 32) + (i / 3)];
+            res[i] = self.data[(i % 3) * (self.width * self.height) + (i / 3)];
         }
         res
     }
