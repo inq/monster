@@ -54,5 +54,5 @@ impl Pooling {
 pub fn test_output_dim() {
     let tensor = Tensor::new_4d(128, 256, 64, 64).unwrap();
     let pooling = Pooling::new_2d_max(2, 0, 2).unwrap();
-    assert_eq!((128, 256, 32, 32), pooling.output_dim(tensor).unwrap());
+    assert_eq!((128, 256, 32, 32), pooling.output_dim(&tensor).unwrap());
 }
