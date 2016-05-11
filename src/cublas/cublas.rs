@@ -34,7 +34,7 @@ impl Cublas {
                                            *&[1.0f32].as_ptr() as *const ::libc::c_float,
                                            a.data as *const f32, m,
                                            x.data as *const f32, 1,
-                                           *&[1.0f32].as_ptr() as *const ::libc::c_float,
+                                           *&[0.0f32].as_ptr() as *const ::libc::c_float,
                                            y.data as *const f32, 1) } {
             ffi::Status::Success => Ok(()),
             e => Err(e.to_str())
