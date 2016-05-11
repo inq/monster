@@ -192,6 +192,14 @@ extern "C" {
                                       h: c_int,
                                       w: c_int)
                                       -> Status;
+    pub fn cudnnAddTensor(handle: Handle,
+                          alpha: *const c_void,
+                          bDesc: TensorDescriptor,
+                          b: *const c_void,
+                          beta: *const c_void,
+                          yDesc: TensorDescriptor,
+                          y: *mut c_void)
+                          -> Status;
     pub fn cudnnActivationForward(handle: Handle,
                                   activationDesc: ActivationDescriptor,
                                   alpha: *const c_void,
