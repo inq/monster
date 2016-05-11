@@ -1,4 +1,4 @@
-use libc::{c_char, c_int, c_float, c_void, size_t};
+use libc::{c_int, c_float};
 
 pub enum Context {}
 pub type Handle = *mut Context;

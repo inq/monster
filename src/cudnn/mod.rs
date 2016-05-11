@@ -11,6 +11,3 @@ pub use self::filter::Filter4d;
 pub use self::conv::Convolution2d;
 pub use self::ffi::ConvolutionFwdAlgo;
 pub use self::pooling::Pooling;
-
-#[cfg(test)]
-mod test;

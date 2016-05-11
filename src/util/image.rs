@@ -4,6 +4,7 @@ use cudart::Memory;
 use std::path::Path;
 use image;
 
+#[allow(dead_code)]
 pub struct Image<T> {
     info: T,
     width: usize,
@@ -11,16 +12,16 @@ pub struct Image<T> {
     pub data: Vec<u8>
 }
 
-const Channels:usize = 3;
+const CHANNELS:usize = 3;
 
 impl<T> Image<T> {
     pub fn from_file(file: &mut File,
                      width: usize,
                      height: usize,
                      info: T) -> Result<Image<T>, &'static str> {
-        let mut buf = vec![0u8; width * height * Channels];
+        let mut buf = vec![0u8; width * height * CHANNELS];
         try!(match file.read(&mut buf) {
-            Ok(n) if(n == width * height * Channels) => Ok(()),
+            Ok(n) if(n == width * height * CHANNELS) => Ok(()),
             _ => Err("EOF")
         });
 
@@ -36,7 +37,7 @@ impl<T> Image<T> {
                        info: T,
                        width: usize,
                        height: usize) -> Result<Image<T>, &'static str> {
-        let mut buf_f32 = vec![0f32; width * height * Channels];
+        let mut buf_f32 = vec![0f32; width * height * CHANNELS];
         try!(memory.read(&mut buf_f32));
         let buf_u8 = buf_f32.into_iter().map(|x: f32| (x * 255.0) as u8).collect::<Vec<_>>();
 
@@ -61,13 +62,13 @@ impl<T> Image<T> {
 
     pub fn to_device(&self) -> Result<Memory<f32>, &'static str> {
         let buf = self.data.clone().into_iter().map(|x: u8| (x as f32) / 255.0).collect::<Vec<_>>();
-        let mut mem = try!(Memory::new(self.size()));
+        let mem = try!(Memory::new(self.size()));
         try!(mem.write(&buf));
         Ok(mem)
     }
 
     pub fn size(&self) -> usize {
-        self.width * self.height * Channels
+        self.width * self.height * CHANNELS
     }
 
     pub fn data_whc(&self) -> Vec<u8> {
