@@ -250,4 +250,16 @@ extern "C" {
                                yDesc: TensorDescriptor,
                                y: *const c_void)
                                -> Status;
+    pub fn cudnnSoftmaxBackward(handle: Handle,
+                                algorigthm: SoftmaxAlgorithm,
+                                mode: SoftmaxMode,
+                                alpha: *const c_void,
+                                yDesc: TensorDescriptor,
+                                y: *const c_void,
+                                dyDesc: TensorDescriptor,
+                                dy: *const c_void,
+                                beta: *const c_void,
+                                dxDesc: TensorDescriptor,
+                                dx: *mut c_void)
+                                -> Status;
 }
