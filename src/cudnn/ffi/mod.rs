@@ -79,6 +79,21 @@ pub enum PoolingMode {
     AverageCountExcludePadding = 2
 }
 
+#[allow(dead_code)]
+#[repr(C)]
+pub enum SoftmaxAlgorithm {
+    Fast = 0,
+    Accurate = 1,
+    Log = 2
+}
+
+#[allow(dead_code)]
+#[repr(C)]
+pub enum SoftmaxMode {
+    Instance = 0,
+    Channel = 1
+}
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[allow(dead_code)]
 #[repr(C)]
@@ -216,4 +231,15 @@ extern "C" {
                                              -> Status;
     pub fn cudnnDestroyPoolingDescriptor(poolingDesc: PoolingDescriptor)
                                          -> Status;
+    // Etc.
+    pub fn cudnnSoftmaxForward(handle: Handle,
+                               algorithm: SoftmaxAlgorithm,
+                               mode: SoftmaxMode,
+                               alpha: *const c_void,
+                               xDesc: TensorDescriptor,
+                               x: *const c_void,
+                               beta: *const c_void,
+                               yDesc: TensorDescriptor,
+                               y: *const c_void)
+                               -> Status;
 }

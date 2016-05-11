@@ -197,4 +197,26 @@ impl Cudnn {
             e => Err(e.to_str())
         }
     }
+
+    pub fn softmax_forward(&self,
+                           src_tensor: &Tensor,
+                           src_memory: &Memory<f32>,
+                           dst_tensor: &Tensor,
+                           dst_memory: &Memory<f32>)
+                           -> Result<(), &'static str> {
+        let alpha = 1f32;
+        let beta = 0f32;
+        match unsafe { ffi::cudnnSoftmaxForward(self.handle,
+                                                ffi::SoftmaxAlgorithm::Fast,
+                                                ffi::SoftmaxMode::Channel,
+                                                &alpha as *const _ as *const ::libc::c_void,
+                                                src_tensor.desc,
+                                                src_memory.data,
+                                                &beta as *const _ as *const ::libc::c_void,
+                                                dst_tensor.desc,
+                                                dst_memory.data) } {
+            ffi::Status::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
 }
