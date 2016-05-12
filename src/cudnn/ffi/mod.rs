@@ -30,6 +30,13 @@ impl Status {
         let buf = unsafe { CStr::from_ptr(cudnnGetErrorString(self) ) }.to_bytes();
         str::from_utf8(buf).unwrap()
     }
+
+    pub fn result(self) -> Result<(), &'static str> {
+        match self {
+            Status::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
 }
 
 #[allow(dead_code)]
