@@ -28,4 +28,20 @@ impl Nn {
                            src,
                            dst) 
     }
+
+    pub fn fcn_backward(&self,
+                        scale: f32,
+                        m: usize,
+                        n: usize,
+                        x: &Memory<f32>,
+                        dy: &Memory<f32>,
+                        params: &mut Memory<f32>)
+                        -> Result<(), &'static str> {
+        self.cublas.s_ger(m as i32,
+                          n as i32,
+                          scale,
+                          x,
+                          dy,
+                          params)
+    }
 }
