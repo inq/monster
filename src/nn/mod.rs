@@ -35,8 +35,14 @@ impl Nn {
                         n: usize,
                         x: &Memory<f32>,
                         dy: &Memory<f32>,
+                        dx: &mut Memory<f32>,
                         params: &mut Memory<f32>)
                         -> Result<(), &'static str> {
+        try!(self.cublas.s_gemv_n(m as i32,
+                                  n as i32,
+                                  params,
+                                  dy,
+                                  dx));
         self.cublas.s_ger(m as i32,
                           n as i32,
                           scale,

@@ -41,6 +41,26 @@ impl Cublas {
         }
     }
 
+    pub fn s_gemv_n(&self,
+                    m: i32,
+                    n: i32,
+                    a: &Memory<f32>,
+                    x: &Memory<f32>,
+                    y: &mut Memory<f32>)
+                    -> Result<(), &'static str> {
+        match unsafe { ffi::cublasSgemv_v2(self.handle,
+                                           ffi::Operation::N,
+                                           m, n,
+                                           *&[1.0f32].as_ptr() as *const ::libc::c_float,
+                                           a.data as *const f32, m,
+                                           x.data as *const f32, 1,
+                                           *&[0.0f32].as_ptr() as *const ::libc::c_float,
+                                           y.data as *const f32, 1) } {
+            ffi::Status::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
+
     // adding outer product
     pub fn s_ger(&self,
                  m: i32,
