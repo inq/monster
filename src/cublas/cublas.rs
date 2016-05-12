@@ -1,4 +1,4 @@
-use cudart::Memory;
+use nn::Tensor;
 use cublas::ffi;
 use std::ptr;
 
@@ -24,9 +24,9 @@ impl Cublas {
     pub fn s_gemv(&self,
                   m: i32,
                   n: i32,
-                  a: &Memory<f32>,
-                  x: &Memory<f32>,
-                  y: &mut Memory<f32>)
+                  a: &Tensor,
+                  x: &Tensor,
+                  y: &Tensor)
                   -> Result<(), &'static str> {
         match unsafe { ffi::cublasSgemv_v2(self.handle,
                                            ffi::Operation::T,
@@ -44,9 +44,9 @@ impl Cublas {
     pub fn s_gemv_n(&self,
                     m: i32,
                     n: i32,
-                    a: &Memory<f32>,
-                    x: &Memory<f32>,
-                    y: &mut Memory<f32>)
+                    a: &Tensor,
+                    x: &Tensor,
+                    y: &mut Tensor)
                     -> Result<(), &'static str> {
         match unsafe { ffi::cublasSgemv_v2(self.handle,
                                            ffi::Operation::N,
@@ -66,9 +66,9 @@ impl Cublas {
                  m: i32,
                  n: i32,
                  alpha: f32,
-                 x: &Memory<f32>,
-                 y: &Memory<f32>,
-                 a: &mut Memory<f32>)
+                 x: &Tensor,
+                 y: &Tensor,
+                 a: &mut Tensor)
                  -> Result<(), &'static str> {
         match unsafe { ffi::cublasSger_v2(self.handle,
                                           m, n,

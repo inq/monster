@@ -1,5 +1,5 @@
 use cudnn::ffi;
-use cudnn::Tensor;
+use Tensor;
 use std::ptr::null_mut;
 
 pub struct Pooling {

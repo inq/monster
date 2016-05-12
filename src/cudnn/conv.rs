@@ -1,4 +1,4 @@
-use cudnn::Tensor;
+use Tensor;
 use cudnn::Filter4d;
 use cudnn::ffi;
 use std::ptr;

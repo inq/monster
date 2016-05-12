@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::Read;
+use nn::Tensor;
 use cudart::Memory;
 use std::path::Path;
 use image;

@@ -1,10 +1,10 @@
-use cudnn::ffi;
-use cudnn::{Tensor, Filter4d, Convolution2d, Pooling};
+use cudnn::{ffi, Filter4d, Convolution2d, Pooling};
+use nn::Tensor;
 use cudart::Memory;
 use std::ptr;
 
 pub struct Cudnn {
-    handle: ffi::Handle
+    pub handle: ffi::Handle
 }
 
 impl Drop for Cudnn {
@@ -22,37 +22,17 @@ impl Cudnn {
         }
     }
 
-    pub fn sigmoid_forward(&self,
-                           src_desc: Tensor,
-                           src: &Memory<f32>,
-                           dst_desc: Tensor,
-                           dst: &mut Memory<f32>)
-                           -> Result<(), &'static str> {
-        match unsafe { ffi::cudnnActivationForward(self.handle,
-                                                   ffi::ActivationDescriptor::Sigmoid,
-                                                   *&[1.0f32].as_ptr() as *const ::libc::c_void,
-                                                   src_desc.desc,
-                                                   src.data,
-                                                   *&[0.0f32].as_ptr() as *const ::libc::c_void,
-                                                   dst_desc.desc,
-                                                   dst.data) } {
-            ffi::Status::Success => Ok(()),
-            e => Err(e.to_str())
-        }
-    }
-
     pub fn relu_forward_inplace(&self,
-                                src_desc: &Tensor,
-                                src: &mut Memory<f32>)
+                                x: &mut Tensor)
                                 -> Result<(), &'static str> {
         match unsafe { ffi::cudnnActivationForward(self.handle,
                                                    ffi::ActivationDescriptor::ReLU,
                                                    *&[1.0f32].as_ptr() as *const ::libc::c_void,
-                                                   src_desc.desc,
-                                                   src.data,
+                                                   x.desc,
+                                                   x.data,
                                                    *&[0.0f32].as_ptr() as *const ::libc::c_void,
-                                                   src_desc.desc,
-                                                   src.data) } {
+                                                   x.desc,
+                                                   x.data) } {
             ffi::Status::Success => Ok(()),
             e => Err(e.to_str())
         }
@@ -101,12 +81,12 @@ impl Cudnn {
 
     pub fn conv_forward(&self,
                         x_desc: &Tensor,
-                        x: &Memory<f32>,
+                        x: &Tensor,
                         w_desc: &Filter4d,
-                        w: &Memory<f32>,
+                        w: &Tensor,
                         conv_desc: &Convolution2d,
                         y_desc: &Tensor,
-                        y: &Memory<f32>)
+                        y: &Tensor)
                         -> Result<(), &'static str> {
         let alpha = 1f32;
         let beta = 0f32;
@@ -140,9 +120,9 @@ impl Cudnn {
 
     pub fn conv_forward_src(&self,
                             x_desc: &Tensor,
-                            x: &Memory<f32>,
+                            x: &Tensor,
                             w_desc: &Filter4d,
-                            w: &Memory<f32>,
+                            w: &Tensor,
                             conv_desc: &Convolution2d,
                             y_desc: &Tensor)
                             -> Result<(), &'static str> {
@@ -179,9 +159,9 @@ impl Cudnn {
     pub fn max_pooling_forward(&self,
                                pooling: &Pooling,
                                src_tensor: &Tensor,
-                               src_memory: &Memory<f32>,
+                               src_memory: &Tensor,
                                dst_tensor: &Tensor,
-                               dst_memory: &Memory<f32>) 
+                               dst_memory: &Tensor) 
                                -> Result<(), &'static str> {
         let alpha = 1f32;
         let beta = 0f32;
@@ -201,13 +181,13 @@ impl Cudnn {
     pub fn max_pooling_backward(&self,
                                 pooling: &Pooling,
                                 y_tensor: &Tensor,
-                                y_memory: &Memory<f32>,
+                                y_memory: &Tensor,
                                 dy_tensor: &Tensor,
-                                dy_memory: &Memory<f32>,
+                                dy_memory: &Tensor,
                                 x_tensor: &Tensor,
-                                x_memory: &Memory<f32>,
+                                x_memory: &Tensor,
                                 dx_tensor: &mut Tensor,
-                                dx_memory: &mut Memory<f32>) 
+                                dx_memory: &mut Tensor) 
                                 -> Result<(), &'static str> {
         let alpha = 1f32;
         let beta = 0f32;
@@ -230,9 +210,9 @@ impl Cudnn {
 
     pub fn add_bias(&self,
                     bias_tensor: &Tensor,
-                    bias_memory: &Memory<f32>,
+                    bias_memory: &Tensor,
                     dst_tensor: &Tensor,
-                    dst_memory: &Memory<f32>)
+                    dst_memory: &Tensor)
                     -> Result<(), &'static str> {
         let alpha = 1f32;
         let beta = 1f32;
@@ -251,9 +231,9 @@ impl Cudnn {
     pub fn bias_backward(&self,
                          scale: f32,
                          bias_tensor: &mut Tensor,
-                         bias_memory: &Memory<f32>,
+                         bias_memory: &Tensor,
                          dy_tensor: &Tensor,
-                         dy_memory: &Memory<f32>)
+                         dy_memory: &Tensor)
                          -> Result<(), &'static str> {
         let beta = 1f32;
         match unsafe { ffi::cudnnAddTensor(self.handle,
@@ -270,9 +250,9 @@ impl Cudnn {
 
     pub fn softmax_forward(&self,
                            src_tensor: &Tensor,
-                           src_memory: &Memory<f32>,
+                           src_memory: &Tensor,
                            dst_tensor: &Tensor,
-                           dst_memory: &Memory<f32>)
+                           dst_memory: &Tensor)
                            -> Result<(), &'static str> {
         let alpha = 1f32;
         let beta = 0f32;
@@ -292,11 +272,11 @@ impl Cudnn {
 
     pub fn softmax_backward(&self,
                             y_tensor: &Tensor,
-                            y_memory: &Memory<f32>,
+                            y_memory: &Tensor,
                             dy_tensor: &Tensor,
-                            dy_memory: &Memory<f32>,
+                            dy_memory: &Tensor,
                             dx_tensor: &mut Tensor,
-                            dx_memory: &Memory<f32>)
+                            dx_memory: &Tensor)
                             -> Result<(), &'static str>{
         let alpha = 1f32;
         let beta = 0f32;

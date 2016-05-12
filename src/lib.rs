@@ -8,3 +8,4 @@ pub mod util;
 pub mod nn;
 
 pub use nn::Nn;
+pub use nn::Tensor;
