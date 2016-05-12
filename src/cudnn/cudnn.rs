@@ -24,35 +24,32 @@ impl Cudnn {
 
     pub fn activation_forward(&self,
                               mode: ffi::ActivationDescriptor,
-                              alpha: f32,
-                              x: Tensor,
-                              beta: f32,
-                              y: &mut Tensor)
+                              alpha: f32, x: &Tensor,
+                              beta: f32, y: &mut Tensor)
                               -> Result<(), &'static str> {
-        unsafe { ffi::cudnnActivationForward(self.handle,
-                                             ffi::ActivationDescriptor::ReLU,
-                                             &alpha as *const _ as *const ::libc::c_void,
-                                             x.desc,
-                                             x.data,
-                                             &alpha as *const _ as *const ::libc::c_void,
-                                             x.desc,
-                                             x.data) }.result()
+        unsafe {
+            ffi::cudnnActivationForward(self.handle,
+                                        ffi::ActivationDescriptor::ReLU,
+                                        &alpha as *const _ as *const ::libc::c_void,
+                                        x.desc, x.data,
+                                        &alpha as *const _ as *const ::libc::c_void,
+                                        y.desc, y.data)
+        }.to_result()
     }
 
     pub fn relu_forward_inplace(&self,
                                 x: &mut Tensor)
                                 -> Result<(), &'static str> {
-        match unsafe { ffi::cudnnActivationForward(self.handle,
-                                                   ffi::ActivationDescriptor::ReLU,
-                                                   *&[1.0f32].as_ptr() as *const ::libc::c_void,
-                                                   x.desc,
-                                                   x.data,
-                                                   *&[0.0f32].as_ptr() as *const ::libc::c_void,
-                                                   x.desc,
-                                                   x.data) } {
-            ffi::Status::Success => Ok(()),
-            e => Err(e.to_str())
-        }
+        unsafe {
+            ffi::cudnnActivationForward(self.handle,
+                                        ffi::ActivationDescriptor::ReLU,
+                                        *&[1.0f32].as_ptr() as *const ::libc::c_void,
+                                        x.desc,
+                                        x.data,
+                                        *&[0.0f32].as_ptr() as *const ::libc::c_void,
+                                        x.desc,
+                                        x.data)
+        }.to_result() 
     }
 
     pub fn get_conv_forward_algo(&self,
