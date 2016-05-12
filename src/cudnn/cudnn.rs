@@ -198,6 +198,36 @@ impl Cudnn {
         }
     }
 
+    pub fn max_pooling_backward(&self,
+                                pooling: &Pooling,
+                                y_tensor: &Tensor,
+                                y_memory: &Memory<f32>,
+                                dy_tensor: &Tensor,
+                                dy_memory: &Memory<f32>,
+                                x_tensor: &Tensor,
+                                x_memory: &Memory<f32>,
+                                dx_tensor: &mut Tensor,
+                                dx_memory: &mut Memory<f32>) 
+                                -> Result<(), &'static str> {
+        let alpha = 1f32;
+        let beta = 0f32;
+        match unsafe { ffi::cudnnPoolingBackward(self.handle,
+                                                 pooling.desc,
+                                                 &alpha as *const _ as *const ::libc::c_void,
+                                                 y_tensor.desc,
+                                                 y_memory.data,
+                                                 dy_tensor.desc,
+                                                 dy_memory.data,
+                                                 x_tensor.desc,
+                                                 x_memory.data,
+                                                 &beta as *const _ as *const ::libc::c_void,
+                                                 dx_tensor.desc,
+                                                 dx_memory.data) } {
+            ffi::Status::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
+
     pub fn add_bias(&self,
                     bias_tensor: &Tensor,
                     bias_memory: &Memory<f32>,

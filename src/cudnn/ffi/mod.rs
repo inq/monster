@@ -230,6 +230,19 @@ extern "C" {
                                yDesc: TensorDescriptor,
                                y: *const c_void)
                                -> Status;
+    pub fn cudnnPoolingBackward(handle: Handle,
+                                poolingDesc: PoolingDescriptor,
+                                alpha: *const c_void,
+                                yDesc: TensorDescriptor,
+                                y: *const c_void,
+                                dyDesc: TensorDescriptor,
+                                dy: *const c_void,
+                                xDesc: TensorDescriptor,
+                                x: *const c_void,
+                                beta: *const c_void,
+                                dxDesc: TensorDescriptor,
+                                dx: *mut c_void)
+                                -> Status;
     pub fn cudnnGetPooling2dForwardOutputDim(poolingDesc: PoolingDescriptor,
                                              inputDesc: TensorDescriptor,
                                              outN: *mut c_int,
