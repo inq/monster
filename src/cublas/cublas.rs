@@ -40,6 +40,26 @@ impl Cublas {
             e => Err(e.to_str())
         }
     }
+
+    // adding outer product
+    pub fn s_ger(&self,
+                 m: i32,
+                 n: i32,
+                 alpha: f32,
+                 x: &Memory<f32>,
+                 y: &Memory<f32>,
+                 a: &mut Memory<f32>)
+                 -> Result<(), &'static str> {
+        match unsafe { ffi::cublasSger_v2(self.handle,
+                                          m, n,
+                                          *&[alpha].as_ptr() as *const ::libc::c_float,
+                                          x.data as *const f32, 1,
+                                          y.data as *const f32, 1,
+                                          a.data as *mut f32, m) } {
+            ffi::Status::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
 }
 
 #[test]
@@ -49,7 +69,6 @@ fn test_s_gemv() {
     x.write(&x_data).unwrap();
     let mut y = Memory::<f32>::new(3).unwrap();
     let mut y_data = vec![0f32, 0f32, 0f32];
-    y.write(&y_data).unwrap();
     let a = Memory::<f32>::new(2 * 3).unwrap();
     let a_data = vec![1f32, 0f32, 0f32, 1f32, 2f32, 3f32];
     a.write(&a_data).unwrap();
@@ -59,4 +78,26 @@ fn test_s_gemv() {
     assert_eq!(y_data[0], 3f32);
     assert_eq!(y_data[1], 4f32);
     assert_eq!(y_data[2], 18f32);
+}
+
+#[test]
+fn test_s_ger() {
+    let x = Memory::<f32>::new(2).unwrap();
+    let x_data = vec![3f32, 4f32];
+    x.write(&x_data).unwrap();
+    let y = Memory::<f32>::new(3).unwrap();
+    let y_data = vec![-1f32, 2f32, -3f32];
+    y.write(&y_data).unwrap();
+    let mut a = Memory::<f32>::new(2 * 3).unwrap();
+    let mut a_data = vec![1f32, 2f32, 3f32, 4f32, 5f32, 6f32];
+    a.write(&a_data).unwrap();
+    let cublas = Cublas::new().unwrap();
+    cublas.s_ger(2, 3, 1f32, &x, &y, &mut a).unwrap();
+    a.read(&mut a_data).unwrap();
+    assert_eq!(a_data[0], -2f32);
+    assert_eq!(a_data[1], -2f32);
+    assert_eq!(a_data[2], 9f32);
+    assert_eq!(a_data[3], 12f32);
+    assert_eq!(a_data[4], -4f32);
+    assert_eq!(a_data[5], -6f32);
 }

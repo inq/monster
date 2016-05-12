@@ -62,4 +62,17 @@ extern "C" {
                           y: *const c_float,
                           incy: c_int)
                           -> Status;
+
+    pub fn cublasSger_v2(handle: Handle,
+                         m: c_int,
+                         n: c_int,
+                         alpha: *const c_float,
+                         x: *const c_float,
+                         incx: c_int,
+                         y: *const c_float,
+                         incy: c_int,
+                         A: *mut c_float,
+                         lda: c_int)
+                         -> Status;
+                         
 }
