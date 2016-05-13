@@ -12,7 +12,7 @@ impl Nn {
 
     pub fn fcn_backward(&self, scale: f32,
                         x: &Tensor, dy: &Tensor, dx: &Tensor,
-                        params: &mut Tensor)
+                        params: &Tensor)
                         -> Result<(), &'static str> {
         try!(self.cublas.s_gemv_n(x.channel_size(),
                                   dy.channel_size(),

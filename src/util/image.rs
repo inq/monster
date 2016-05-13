@@ -62,7 +62,7 @@ impl<T> Image<T> {
 
     pub fn to_device(&self) -> Result<Tensor, &'static str> {
         let buf = self.data.clone().into_iter().map(|x: u8| (x as f32) / 255.0).collect::<Vec<_>>();
-        let mem = try!(Tensor::new(1, 1, self.width as i32, self.height as i32));
+        let mem = try!(Tensor::new(1, 3, self.width as i32, self.height as i32));
         try!(mem.write(&buf));
         Ok(mem)
     }
