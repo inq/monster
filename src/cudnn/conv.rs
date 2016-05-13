@@ -1,5 +1,6 @@
 use nn::Tensor;
 use cudnn::{ffi, Cudnn, Filter4d};
+use cudnn::ffi::{ConvolutionMode};
 use cudart::Memory;
 use std::ptr;
 
@@ -30,12 +31,12 @@ impl Convolution2d {
                upscaley: i32) -> Result<Convolution2d, &'static str> {
         let conv = try! { Convolution2d::new_desc() };
         match unsafe { ffi::cudnnSetConvolution2dDescriptor(conv.desc, 
-                                                            pad_h,
-                                                            pad_w,
-                                                            u, v,
-                                                            upscalex,
-                                                            upscaley,
-                                                            ffi::ConvolutionMode::Convolution) } {
+                                                      pad_h,
+                                                      pad_w,
+                                                      u, v,
+                                                      upscalex,
+                                                      upscaley,
+                                                      ConvolutionMode::Convolution) } {
             ffi::Status::Success => Ok(conv),
             e => Err(e.to_str())
         }
@@ -61,13 +62,13 @@ impl Convolution2d {
 impl Cudnn {
     pub fn get_conv_forward_algo(&self,
                                  x: &Tensor, w: &Filter4d,
-                                 conv: &Convolution2d, y: &Tensor)
+                                 conv: &Convolution2d, y: &Tensor,
+                                 preference: ffi::ConvolutionFwdPreference)
                                  -> Result<ffi::ConvolutionFwdAlgo, &'static str> {
         let mut res = ffi::ConvolutionFwdAlgo::ImplicitGemm;
         match unsafe { ffi::cudnnGetConvolutionForwardAlgorithm(self.handle,
                                                                 x.desc, w.desc, conv.desc, y.desc,
-                                                                ffi::ConvolutionFwdPreference::NoWorkspace,
-                                                                0,
+                                                                preference, 0,
                                                                 &mut res) } {
             ffi::Status::Success => Ok(res),
             e => Err(e.to_str())
@@ -94,7 +95,7 @@ impl Cudnn {
             e => Err(e.to_str())
         }
     }
-
+/*
     pub fn conv_forward(&self,
                         x: &Tensor,
                         filter: &Filter4d,
@@ -130,4 +131,5 @@ impl Cudnn {
                                          y.data)
         }.to_result()
     }
+*/
 }
