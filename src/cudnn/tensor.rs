@@ -41,6 +41,10 @@ impl Tensor {
         }
     }
 
+    fn channel_size(&self) -> i32 {
+        self.c * self.h * self.w
+    }
+    
     pub fn write(&self, data: &Vec<f32>) -> Result<(), &'static str> {
         match unsafe { cudart::ffi::cudaMemcpy(self.data,
                                                data.as_ptr() as *mut c_void,
