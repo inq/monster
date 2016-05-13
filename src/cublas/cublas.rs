@@ -84,12 +84,12 @@ impl Cublas {
 
 #[test]
 fn test_s_gemv() {
-    let x = Memory::<f32>::new(2).unwrap();
+    let x = Tensor::new(1, 1, 1, 2).unwrap();
     let x_data = vec![3f32, 4f32];
     x.write(&x_data).unwrap();
-    let mut y = Memory::<f32>::new(3).unwrap();
+    let mut y = Tensor::new(1, 1, 1, 3).unwrap();
     let mut y_data = vec![0f32, 0f32, 0f32];
-    let a = Memory::<f32>::new(2 * 3).unwrap();
+    let a = Tensor::new(1, 1, 1, 2 * 3).unwrap();
     let a_data = vec![1f32, 0f32, 0f32, 1f32, 2f32, 3f32];
     a.write(&a_data).unwrap();
     let cublas = Cublas::new().unwrap();
@@ -102,13 +102,13 @@ fn test_s_gemv() {
 
 #[test]
 fn test_s_ger() {
-    let x = Memory::<f32>::new(2).unwrap();
+    let x = Tensor::new(1, 1, 1, 2).unwrap();
     let x_data = vec![3f32, 4f32];
     x.write(&x_data).unwrap();
-    let y = Memory::<f32>::new(3).unwrap();
+    let y = Tensor::new(1, 1, 1, 3).unwrap();
     let y_data = vec![-1f32, 2f32, -3f32];
     y.write(&y_data).unwrap();
-    let mut a = Memory::<f32>::new(2 * 3).unwrap();
+    let mut a = Tensor::new(1, 1, 1, 2 * 3).unwrap();
     let mut a_data = vec![1f32, 2f32, 3f32, 4f32, 5f32, 6f32];
     a.write(&a_data).unwrap();
     let cublas = Cublas::new().unwrap();

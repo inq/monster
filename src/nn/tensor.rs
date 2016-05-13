@@ -40,4 +40,24 @@ impl Tensor {
             e => Err(e.to_str())
         }
     }
+
+    pub fn write(&self, data: &Vec<f32>) -> Result<(), &'static str> {
+        match unsafe { cudart::ffi::cudaMemcpy(self.data,
+                                               data.as_ptr() as *mut c_void,
+                                               (data.len() * size_of::<f32>()) as u64,
+                                               cudart::ffi::MemcpyKind::HostToDevice) } {
+            cudart::ffi::Error::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
+
+    pub fn read(&self, data: &Vec<f32>) -> Result<(), &'static str> {
+        match unsafe { cudart::ffi::cudaMemcpy(data.as_ptr() as *mut c_void,
+                                               self.data,
+                                               (data.len() * size_of::<f32>()) as u64,
+                                               cudart::ffi::MemcpyKind::DeviceToHost) } {
+            cudart::ffi::Error::Success => Ok(()),
+            e => Err(e.to_str())
+        }
+    }
 }

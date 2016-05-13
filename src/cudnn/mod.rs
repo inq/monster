@@ -3,6 +3,7 @@ mod cudnn;
 mod filter;
 mod conv;
 mod pooling;
+mod activation;
 
 pub use self::cudnn::Cudnn;
 pub use self::filter::Filter4d;
