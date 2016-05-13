@@ -26,5 +26,4 @@ impl Nn {
         self.cudnn.pooling_backward(pooling, 1f32, y, dy, x,
                                     0f32, dx)
     }
-
 }

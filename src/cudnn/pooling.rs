@@ -35,15 +35,11 @@ impl Pooling {
         }.to_result()
     }
 
-    pub fn output_dim(&self, tensor: &Tensor)
-                      -> Result<(i32, i32, i32, i32), &'static str> {
+    pub fn get_2d_forward_output_dim(&self, tensor: &Tensor)
+                                     -> Res<(i32, i32, i32, i32)> {
         let (mut n, mut c, mut h, mut w) = (0i32, 0i32, 0i32, 0i32);
-        match unsafe { ffi::cudnnGetPooling2dForwardOutputDim(self.desc,
-                                                              tensor.desc,
-                                                              &mut n,
-                                                              &mut c,
-                                                              &mut h,
-                                                              &mut w) } {
+        match unsafe { ffi::cudnnGetPooling2dForwardOutputDim(self.desc, tensor.desc,
+                                                              &mut n, &mut c, &mut h, &mut w) } {
             ffi::Status::Success => Ok((n, c, h, w)),
             e => Err(e.to_str())
         }
@@ -86,5 +82,5 @@ pub fn test_output_dim() {
     let tensor = Tensor::new(128, 256, 64, 64).unwrap();
     let pooling = Pooling::new().unwrap();
     pooling.set_2d_desc(ffi::PoolingMode::Max, 2, 2, 0, 0, 2, 2).unwrap();
-    assert_eq!((128, 256, 32, 32), pooling.output_dim(&tensor).unwrap());
+    assert_eq!((128, 256, 32, 32), pooling.get_2d_forward_output_dim(&tensor).unwrap());
 }
