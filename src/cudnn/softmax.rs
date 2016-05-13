@@ -1,8 +1,9 @@
-use cudnn::ffi;
+use cudnn::{ffi, Cudnn, Tensor};
+use nn::Res;
 
 impl Cudnn {
     pub fn softmax_forward(&self, algo: ffi::SoftmaxAlgorithm, mode: ffi::SoftmaxMode,
-                           alpha: f32, x: Tensor, beta: f32, y: Tensor)
+                           alpha: f32, x: &Tensor, beta: f32, y: &Tensor)
                            -> Res<()> {
         unsafe {
             ffi::cudnnSoftmaxForward(self.handle, algo, mode,
@@ -14,7 +15,8 @@ impl Cudnn {
     }
 
     pub fn softmax_backward(&self, algo: ffi::SoftmaxAlgorithm, mode: ffi::SoftmaxMode,
-                            alpha: f32, y: Tensor, dy: Tensor, beta: f32, dx: Tensor) {
+                            alpha: f32, y: &Tensor, dy: &Tensor, beta: f32, dx: &Tensor)
+                            -> Res<()> {
         unsafe {
             ffi::cudnnSoftmaxBackward(self.handle, algo, mode,
                                       &alpha as *const _ as *const ::libc::c_void,

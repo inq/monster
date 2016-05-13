@@ -1,5 +1,6 @@
 use cudnn::ffi;
 use std::ptr;
+use nn::Res;
 
 pub struct Cudnn {
     pub handle: ffi::Handle

@@ -1,7 +1,7 @@
-use cudnn::{Tensor, Filter4d, Convolution2d};
+use cudnn::{Tensor, Filter, Convolution2d, SoftmaxAlgorithm, SoftmaxMode};
 use cudart::Memory;
 use cudnn;
-use nn::Nn;
+use nn::{Nn, Res};
 
 impl Nn {
     pub fn softmax_forward(&self, x: &Tensor, y: &Tensor)
