@@ -2,7 +2,7 @@ use cudnn::{Tensor, ActivationDescriptor};
 use nn::{Nn, Res};
 
 impl Nn {
-    pub fn fcn_forward(&self, x: &Tensor, y: &mut Tensor,
+    pub fn fcn_forward(&self, x: &Tensor, y: &Tensor,
                        params: &Tensor)
                        -> Result<(), &'static str> {
         self.cublas.s_gemv(x.channel_size(),
@@ -11,7 +11,7 @@ impl Nn {
     }
 
     pub fn fcn_backward(&self, scale: f32,
-                        x: &Tensor, dy: &Tensor, dx: &mut Tensor,
+                        x: &Tensor, dy: &Tensor, dx: &Tensor,
                         params: &mut Tensor)
                         -> Result<(), &'static str> {
         try!(self.cublas.s_gemv_n(x.channel_size(),

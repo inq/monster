@@ -46,7 +46,7 @@ impl Cublas {
                     n: i32,
                     a: &Tensor,
                     x: &Tensor,
-                    y: &mut Tensor)
+                    y: &Tensor)
                     -> Result<(), &'static str> {
         match unsafe { ffi::cublasSgemv_v2(self.handle,
                                            ffi::Operation::N,
@@ -68,7 +68,7 @@ impl Cublas {
                  alpha: f32,
                  x: &Tensor,
                  y: &Tensor,
-                 a: &mut Tensor)
+                 a: &Tensor)
                  -> Result<(), &'static str> {
         match unsafe { ffi::cublasSger_v2(self.handle,
                                           m, n,
