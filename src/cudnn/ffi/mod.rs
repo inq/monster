@@ -3,7 +3,7 @@ mod conv;
 pub use self::conv::*;
 use std::ffi::CStr;
 use std::str;
-use libc::{c_int, c_void, size_t};
+use libc::{c_int, c_void};
 
 pub enum Context {}
 pub type Handle = *mut Context;
