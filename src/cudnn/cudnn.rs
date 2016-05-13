@@ -22,58 +22,6 @@ impl Cudnn {
         }
     }
 
-    pub fn max_pooling_forward(&self,
-                               pooling: &Pooling,
-                               src_tensor: &Tensor,
-                               src_memory: &Tensor,
-                               dst_tensor: &Tensor,
-                               dst_memory: &Tensor) 
-                               -> Result<(), &'static str> {
-        let alpha = 1f32;
-        let beta = 0f32;
-        match unsafe { ffi::cudnnPoolingForward(self.handle,
-                                                pooling.desc,
-                                                &alpha as *const _ as *const ::libc::c_void,
-                                                src_tensor.desc,
-                                                src_memory.data,
-                                                &beta as *const _ as *const ::libc::c_void,
-                                                dst_tensor.desc,
-                                                dst_memory.data) } {
-            ffi::Status::Success => Ok(()),
-            e => Err(e.to_str())
-        }
-    }
-
-    pub fn max_pooling_backward(&self,
-                                pooling: &Pooling,
-                                y_tensor: &Tensor,
-                                y_memory: &Tensor,
-                                dy_tensor: &Tensor,
-                                dy_memory: &Tensor,
-                                x_tensor: &Tensor,
-                                x_memory: &Tensor,
-                                dx_tensor: &mut Tensor,
-                                dx_memory: &mut Tensor) 
-                                -> Result<(), &'static str> {
-        let alpha = 1f32;
-        let beta = 0f32;
-        match unsafe { ffi::cudnnPoolingBackward(self.handle,
-                                                 pooling.desc,
-                                                 &alpha as *const _ as *const ::libc::c_void,
-                                                 y_tensor.desc,
-                                                 y_memory.data,
-                                                 dy_tensor.desc,
-                                                 dy_memory.data,
-                                                 x_tensor.desc,
-                                                 x_memory.data,
-                                                 &beta as *const _ as *const ::libc::c_void,
-                                                 dx_tensor.desc,
-                                                 dx_memory.data) } {
-            ffi::Status::Success => Ok(()),
-            e => Err(e.to_str())
-        }
-    }
-
     pub fn softmax_forward(&self,
                            src_tensor: &Tensor,
                            src_memory: &Tensor,
