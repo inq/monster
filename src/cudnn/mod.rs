@@ -12,6 +12,7 @@ pub use self::conv::Convolution2d;
 pub use self::pooling::Pooling;
 pub use self::tensor::Tensor;
 pub use self::ffi::ConvolutionFwdPreference;
+pub use self::ffi::ActivationDescriptor;
 
 #[cfg(test)]
 mod test;
