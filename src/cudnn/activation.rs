@@ -1,4 +1,4 @@
-use cudnn::{ffi, Cudnn, Filter4d, Convolution2d, Pooling};
+use cudnn::{ffi, Cudnn};
 use nn::Tensor;
 
 impl Cudnn {

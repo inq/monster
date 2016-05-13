@@ -1,33 +1,33 @@
 use cudnn::ffi;
 use std::ptr;
+use nn::Res;
 
-pub struct Filter4d {
+pub struct Filter {
     pub desc: ffi::FilterDescriptor
 }
 
-impl Drop for Filter4d {
+impl Drop for Filter {
     fn drop(&mut self) {
         unsafe { ffi::cudnnDestroyFilterDescriptor(self.desc) };
     }
 }
 
-impl Filter4d {
+impl Filter {
     /* CUDNN_TENSOR_NCHW */
-    fn new_desc() -> Result<Filter4d, &'static str> {
+    pub fn new() -> Result<Filter, &'static str> {
         let mut desc: ffi::FilterDescriptor = ptr::null_mut();
         match unsafe { ffi::cudnnCreateFilterDescriptor(&mut desc) } {
-            ffi::Status::Success => Ok(Filter4d { desc: desc }),
+            ffi::Status::Success => Ok(Filter { desc: desc }),
             e => Err(e.to_str())
         }
     }
 
-    pub fn new(k: i32, c: i32, h: i32, w: i32) -> Result<Filter4d, &'static str> {
-        let filter = try! { Filter4d::new_desc() };
-        match unsafe { ffi::cudnnSetFilter4dDescriptor(filter.desc,
-                                                       ffi::DataType::Float,
-                                                       k, c, h, w) } {
-            ffi::Status::Success => Ok(filter),
-            e => Err(e.to_str())
-        }
+    pub fn set_filter_desc(&self, data_type: ffi::DataType,
+                           k: i32, c: i32, h: i32, w: i32)
+                           -> Res<()> {
+        unsafe {
+            ffi::cudnnSetFilter4dDescriptor(self.desc, data_type,
+                                            k, c, h, w)
+        }.to_result()
     }
 }

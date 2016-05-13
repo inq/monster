@@ -1,5 +1,5 @@
 use nn::Tensor;
-use cudnn::{ffi, Cudnn, Filter4d};
+use cudnn::{ffi, Cudnn, Filter};
 use cudnn::ffi::{ConvolutionMode};
 use cudart::Memory;
 use std::ptr;
@@ -44,7 +44,7 @@ impl Convolution2d {
 
     pub fn get_forward_output_dim(&self,
                                   input_tensor: &Tensor,
-                                  filter: &Filter4d) -> Result<(i32, i32, i32, i32), &'static str> {
+                                  filter: &Filter) -> Result<(i32, i32, i32, i32), &'static str> {
         let (mut n, mut c, mut h, mut w) = (0i32, 0i32, 0i32, 0i32);
         match unsafe { ffi::cudnnGetConvolution2dForwardOutputDim(self.desc,
                                                                   input_tensor.desc,
@@ -80,7 +80,7 @@ impl Cudnn {
     }
     
     pub fn get_conv_forward_algo(&self,
-                                 x: &Tensor, w: &Filter4d,
+                                 x: &Tensor, w: &Filter,
                                  conv: &Convolution2d, y: &Tensor,
                                  preference: ffi::ConvolutionFwdPreference)
                                  -> Result<ffi::ConvolutionFwdAlgo, &'static str> {
@@ -96,7 +96,7 @@ impl Cudnn {
 
     pub fn get_conv_forward_workspace_size(&self,
                                            x: &Tensor,
-                                           filter: &Filter4d,
+                                           filter: &Filter,
                                            conv: &Convolution2d,
                                            y: &Tensor,
                                            algo: ffi::ConvolutionFwdAlgo)

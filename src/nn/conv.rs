@@ -1,12 +1,18 @@
-use cudnn::{Tensor, Filter4d, Convolution2d};
+use cudnn::{Tensor, Filter, Convolution2d, ConvolutionFwdPreference, DataType};
 use cudart::Memory;
-use cudnn;
-use nn::Nn;
+use nn::{Nn, Res};
 
 impl Nn {
+    pub fn new_filter(&self, k: i32, c: i32, h: i32, w: i32)
+                      -> Res<Filter> {
+        let filter = try!{ Filter::new() };
+        try! { filter.set_filter_desc(DataType::Float, k, c, h, w) }
+        Ok(filter)
+    }
+    
     pub fn conv_forward(&self,
                         x: &Tensor,
-                        filter: &Filter4d,
+                        filter: &Filter,
                         w: &Tensor,
                         conv: &Convolution2d,
                         y: &Tensor)
@@ -15,7 +21,7 @@ impl Nn {
                                                          &filter,
                                                          &conv,
                                                          &y,
-                                                         cudnn::ConvolutionFwdPreference::NoWorkspace));
+                                                         ConvolutionFwdPreference::NoWorkspace));
         let workspace_size = try!(self.cudnn.get_conv_forward_workspace_size(&x,
                                                                              &filter,
                                                                              &conv,
