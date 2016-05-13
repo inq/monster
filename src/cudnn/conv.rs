@@ -60,6 +60,25 @@ impl Convolution2d {
 }
 
 impl Cudnn {
+    pub fn convolution_forward(&self,
+                               alpha: f32, x: &Tensor, w: &Tensor,
+                               conv: &Convolution2d,
+                               algo: ffi::ConvolutionFwdAlgo,
+                               workspace: &Memory<f32>, workspace_size: usize,
+                               beta: f32, y: &Tensor)
+                               -> Result<(), &'static str> {
+        unsafe {
+            ffi::cudnnConvolutionForward(self.handle,
+                                         &alpha as *const _ as *const ::libc::c_void,
+                                         x.desc, x.data, w.desc, w.data,
+                                         conv.desc,
+                                         algo,
+                                         workspace.data, workspace_size,
+                                         &beta as *const _ as *const ::libc::c_void,
+                                         y.desc, y.data)
+        }.to_result()
+    }
+    
     pub fn get_conv_forward_algo(&self,
                                  x: &Tensor, w: &Filter4d,
                                  conv: &Convolution2d, y: &Tensor,
@@ -95,41 +114,4 @@ impl Cudnn {
             e => Err(e.to_str())
         }
     }
-/*
-    pub fn conv_forward(&self,
-                        x: &Tensor,
-                        filter: &Filter4d,
-                        w: &Tensor,
-                        conv: &Convolution2d,
-                        y: &Tensor)
-                        -> Result<(), &'static str> {
-        let alpha = 1f32;
-        let beta = 0f32;
-        let algo = try!(self.get_conv_forward_algo(&x,
-                                                   &filter,
-                                                   &conv,
-                                                   &y));
-        let workspace_size = try!(self.get_conv_forward_workspace_size(&x,
-                                                                       &filter,
-                                                                       &conv,
-                                                                       &y,
-                                                                       algo));
-        let workspace = try!(Memory::<f32>::new(workspace_size / 4));
-        unsafe {
-            ffi::cudnnConvolutionForward(self.handle,
-                                         &alpha as *const _ as *const ::libc::c_void,
-                                         x.desc,
-                                         x.data,
-                                         w.desc,
-                                         w.data,
-                                         conv.desc,
-                                         algo,
-                                         workspace.data,
-                                         workspace_size,
-                                         &beta as *const _ as *const ::libc::c_void,
-                                         y.desc,
-                                         y.data)
-        }.to_result()
-    }
-*/
 }
