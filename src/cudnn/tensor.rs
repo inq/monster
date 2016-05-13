@@ -1,4 +1,4 @@
-use cudnn::ffi;
+use cudnn::{ffi, Cudnn};
 use libc::c_void;
 use cudart;
 use std::ptr::null_mut;
@@ -59,5 +59,22 @@ impl Tensor {
             cudart::ffi::Error::Success => Ok(()),
             e => Err(e.to_str())
         }
+    }
+}
+
+impl Cudnn {
+    pub fn add_tensor(&self,
+                      alpha: f32, x: &Tensor,
+                      beta: f32, y: &Tensor)
+                      -> Result<(), &'static str> {
+        unsafe {
+            ffi::cudnnAddTensor(self.handle,
+                                &alpha as *const _ as *const ::libc::c_void,
+                                x.desc,
+                                x.data,
+                                &beta as *const _ as *const ::libc::c_void,
+                                y.desc,
+                                y.data)
+        }.to_result()
     }
 }

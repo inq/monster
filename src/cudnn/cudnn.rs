@@ -74,46 +74,6 @@ impl Cudnn {
         }
     }
 
-    pub fn add_bias(&self,
-                    bias_tensor: &Tensor,
-                    bias_memory: &Tensor,
-                    dst_tensor: &Tensor,
-                    dst_memory: &Tensor)
-                    -> Result<(), &'static str> {
-        let alpha = 1f32;
-        let beta = 1f32;
-        match unsafe { ffi::cudnnAddTensor(self.handle,
-                                           &alpha as *const _ as *const ::libc::c_void,
-                                           bias_tensor.desc,
-                                           bias_memory.data,
-                                           &beta as *const _ as *const ::libc::c_void,
-                                           dst_tensor.desc,
-                                           dst_memory.data) } {
-            ffi::Status::Success => Ok(()),
-            e => Err(e.to_str())
-        }                                           
-    }
-
-    pub fn bias_backward(&self,
-                         scale: f32,
-                         bias_tensor: &mut Tensor,
-                         bias_memory: &Tensor,
-                         dy_tensor: &Tensor,
-                         dy_memory: &Tensor)
-                         -> Result<(), &'static str> {
-        let beta = 1f32;
-        match unsafe { ffi::cudnnAddTensor(self.handle,
-                                           &scale as *const _ as *const ::libc::c_void,
-                                           dy_tensor.desc,
-                                           dy_memory.data,
-                                           &beta as *const _ as *const ::libc::c_void,
-                                           bias_tensor.desc,
-                                           bias_memory.data) } {
-            ffi::Status::Success => Ok(()),
-            e => Err(e.to_str())
-        }
-    }
-
     pub fn softmax_forward(&self,
                            src_tensor: &Tensor,
                            src_memory: &Tensor,
