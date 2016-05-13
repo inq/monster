@@ -56,7 +56,9 @@ impl Convolution {
 
 impl Cudnn {
     pub fn convolution_forward(&self,
-                               alpha: f32, x: &Tensor, w: &Tensor,
+                               alpha: f32, x: &Tensor,
+                               filter: &Filter,
+                               w: &Tensor,
                                conv: &Convolution,
                                algo: ffi::ConvolutionFwdAlgo,
                                workspace: &Memory<f32>, workspace_size: usize,
@@ -65,7 +67,9 @@ impl Cudnn {
         unsafe {
             ffi::cudnnConvolutionForward(self.handle,
                                          &alpha as *const _ as *const ::libc::c_void,
-                                         x.desc, x.data, w.desc, w.data,
+                                         x.desc, x.data,
+                                         filter.desc,
+                                         w.data,
                                          conv.desc,
                                          algo,
                                          workspace.data, workspace_size,

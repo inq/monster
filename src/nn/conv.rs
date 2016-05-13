@@ -40,6 +40,6 @@ impl Nn {
                                                                              &y,
                                                                              algo));
         let workspace = try!(Memory::<f32>::new(workspace_size / 4));
-        self.cudnn.convolution_forward(1f32, x, w, conv, algo, &workspace, workspace_size, 0f32, y)
+        self.cudnn.convolution_forward(1f32, x, filter, w, conv, algo, &workspace, workspace_size, 0f32, y)
     }
 }

@@ -15,6 +15,10 @@ pub struct Tensor {
 }
 
 impl Tensor {
+    pub fn debug(&self) {
+        println!("{:?}", (self.n, self.c, self.h, self.w));
+    }
+    
     fn create_desc()
                    -> Result<ffi::TensorDescriptor, &'static str> {
         let mut desc: ffi::Handle = null_mut();
