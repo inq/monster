@@ -1,6 +1,4 @@
-use cudnn::{Tensor, Filter4d, Convolution2d};
-use cudart::Memory;
-use cudnn;
+use cudnn::Tensor;
 use nn::Nn;
 
 impl Nn {

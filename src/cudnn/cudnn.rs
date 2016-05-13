@@ -13,7 +13,7 @@ impl Drop for Cudnn {
 }
 
 impl Cudnn {
-    pub fn new() -> Result<Cudnn, &'static str> {
+    pub fn new() -> Res<Cudnn> {
         let mut handle: ffi::Handle = ptr::null_mut();
         match unsafe { ffi::cudnnCreate(&mut handle) } {
             ffi::Status::Success => Ok(Cudnn { handle : handle }),

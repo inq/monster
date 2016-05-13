@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::Read;
 use nn::Tensor;
-use cudart::Memory;
 use std::path::Path;
 use image;
 
@@ -34,7 +33,7 @@ impl<T> Image<T> {
         })
     }
 
-    pub fn from_device(memory: Memory<f32>,
+    pub fn from_device(memory: &Tensor,
                        info: T,
                        width: usize,
                        height: usize) -> Result<Image<T>, &'static str> {
@@ -61,9 +60,9 @@ impl<T> Image<T> {
         }
     }
 
-    pub fn to_device(&self) -> Result<Memory<f32>, &'static str> {
+    pub fn to_device(&self) -> Result<Tensor, &'static str> {
         let buf = self.data.clone().into_iter().map(|x: u8| (x as f32) / 255.0).collect::<Vec<_>>();
-        let mem = try!(Memory::new(self.size()));
+        let mem = try!(Tensor::new(1, 1, self.width as i32, self.height as i32));
         try!(mem.write(&buf));
         Ok(mem)
     }

@@ -1,4 +1,4 @@
-use cudnn::{Tensor, Filter, Convolution2d, SoftmaxAlgorithm, SoftmaxMode};
+use cudnn::{Tensor, Filter, SoftmaxAlgorithm, SoftmaxMode};
 use cudart::Memory;
 use cudnn;
 use nn::{Nn, Res};

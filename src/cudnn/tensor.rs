@@ -4,6 +4,7 @@ use cudart;
 use std::ptr::null_mut;
 use std::mem::size_of;
 
+#[warn(dead_code)]
 pub struct Tensor {
     pub desc: ffi::TensorDescriptor,
     pub data: *mut c_void,

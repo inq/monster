@@ -1,5 +1,6 @@
 mod nn;
 mod conv;
+mod bias;
 mod activation;
 mod pooling;
 mod softmax;

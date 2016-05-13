@@ -1,47 +1,42 @@
-use nn::Tensor;
-use cudnn::{ffi, Cudnn, Filter};
-use cudnn::ffi::{ConvolutionMode};
+use cudnn::{ffi, Cudnn, Filter, Tensor};
 use cudart::Memory;
 use std::ptr;
+use nn::Res;
 
-pub struct Convolution2d {
+pub struct Convolution {
     pub desc: ffi::ConvolutionDescriptor
 }
 
-impl Drop for Convolution2d {
+impl Drop for Convolution {
     fn drop(&mut self) {
         unsafe { ffi::cudnnDestroyConvolutionDescriptor(self.desc) };
     }
 }
 
-impl Convolution2d {
-    fn new_desc() -> Result<Convolution2d, &'static str> {
+impl Convolution {
+    pub fn new() -> Res<Convolution> {
         let mut desc: ffi::ConvolutionDescriptor = ptr::null_mut();
         match unsafe { ffi::cudnnCreateConvolutionDescriptor(&mut desc) } {
-            ffi::Status::Success => Ok(Convolution2d { desc : desc }),
+            ffi::Status::Success => Ok(Convolution { desc : desc }),
             e => Err(e.to_str())
         }
     }
 
-    pub fn new(pad_h: i32,
-               pad_w: i32,
-               u: i32,
-               v: i32,
-               upscalex: i32,
-               upscaley: i32) -> Result<Convolution2d, &'static str> {
-        let conv = try! { Convolution2d::new_desc() };
-        match unsafe { ffi::cudnnSetConvolution2dDescriptor(conv.desc, 
-                                                      pad_h,
-                                                      pad_w,
-                                                      u, v,
-                                                      upscalex,
-                                                      upscaley,
-                                                      ConvolutionMode::Convolution) } {
-            ffi::Status::Success => Ok(conv),
-            e => Err(e.to_str())
-        }
+    pub fn set_2d_desc(&self,
+                       pad_h: i32, pad_w: i32,
+                       u: i32, v: i32,
+                       upscalex: i32, upscaley: i32,
+                       mode: ffi::ConvolutionMode)
+                       -> Res<()> {
+        unsafe {
+            ffi::cudnnSetConvolution2dDescriptor(self.desc, 
+                                                 pad_h, pad_w,
+                                                 u, v,
+                                                 upscalex, upscaley,
+                                                 mode)
+        }.to_result()
     }
-
+                       
     pub fn get_forward_output_dim(&self,
                                   input_tensor: &Tensor,
                                   filter: &Filter) -> Result<(i32, i32, i32, i32), &'static str> {
@@ -62,7 +57,7 @@ impl Convolution2d {
 impl Cudnn {
     pub fn convolution_forward(&self,
                                alpha: f32, x: &Tensor, w: &Tensor,
-                               conv: &Convolution2d,
+                               conv: &Convolution,
                                algo: ffi::ConvolutionFwdAlgo,
                                workspace: &Memory<f32>, workspace_size: usize,
                                beta: f32, y: &Tensor)
@@ -81,7 +76,7 @@ impl Cudnn {
     
     pub fn get_conv_forward_algo(&self,
                                  x: &Tensor, w: &Filter,
-                                 conv: &Convolution2d, y: &Tensor,
+                                 conv: &Convolution, y: &Tensor,
                                  preference: ffi::ConvolutionFwdPreference)
                                  -> Result<ffi::ConvolutionFwdAlgo, &'static str> {
         let mut res = ffi::ConvolutionFwdAlgo::ImplicitGemm;
@@ -97,7 +92,7 @@ impl Cudnn {
     pub fn get_conv_forward_workspace_size(&self,
                                            x: &Tensor,
                                            filter: &Filter,
-                                           conv: &Convolution2d,
+                                           conv: &Convolution,
                                            y: &Tensor,
                                            algo: ffi::ConvolutionFwdAlgo)
                                            -> Result<usize, &'static str> {
