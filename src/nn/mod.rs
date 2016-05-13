@@ -1,4 +1,5 @@
 mod nn;
+mod fcn;
 mod conv;
 mod bias;
 mod activation;

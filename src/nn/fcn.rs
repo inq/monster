@@ -7,7 +7,7 @@ impl Nn {
                        -> Result<(), &'static str> {
         self.cublas.s_gemv(x.channel_size(),
                            y.channel_size(),
-                           params, src, dst) 
+                           params, x, y) 
     }
 
     pub fn fcn_backward(&self, scale: f32,

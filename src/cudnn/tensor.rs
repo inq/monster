@@ -42,7 +42,7 @@ impl Tensor {
         }
     }
 
-    fn channel_size(&self) -> i32 {
+    pub fn channel_size(&self) -> i32 {
         self.c * self.h * self.w
     }
     
